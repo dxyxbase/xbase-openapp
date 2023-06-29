@@ -304,12 +304,6 @@ export default {
           that.selectedRowKeys = []
         }
       })
-    },
-    // 改变每页数量
-    changePageSize(current, pageSize) {
-      this.page_num = 1
-      this.page_size = pageSize
-      this.getAssetList()
     }
   },
   mounted() {

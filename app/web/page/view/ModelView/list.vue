@@ -7,89 +7,91 @@
       <a-button :disabled="!hasSelected" class="del" @click="handleDeletePatch('patch')">删除</a-button>
     </div>
     <div class="sceneTableOutContent">
-      <div v-if="lists.length === 0" class="noData" style="text-align: center">
-        <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
-        <p>暂无内容</p>
-      </div>
-      <a-table
-        v-else
-        :row-selection="{
-          selectedRowKeys: selectedRowKeys,
-          onChange: onSelectChange,
-          getCheckboxProps: rowSelection.getCheckboxProps
-        }"
-        :columns="columns"
-        :data-source="lists"
-        :pagination="false"
-        :rowKey="record => record.model_id"
-        class="table-ui"
-      >
-        <div slot="name" slot-scope="text" class="file-name">
-          <img :src="require('@/asset/images/scene.png')" alt="" />
-          <span key="preview" type="link" class="actionBtn">
-            {{ text }}
+      <div>
+        <div v-if="lists.length === 0" class="noData" style="text-align: center">
+          <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
+          <p>暂无内容</p>
+        </div>
+        <a-table
+          v-else
+          :row-selection="{
+            selectedRowKeys: selectedRowKeys,
+            onChange: onSelectChange,
+            getCheckboxProps: rowSelection.getCheckboxProps
+          }"
+          :columns="columns"
+          :data-source="lists"
+          :pagination="false"
+          :rowKey="record => record.model_id"
+          class="table-ui"
+        >
+          <div slot="name" slot-scope="text" class="file-name">
+            <img :src="require('@/asset/images/scene.png')" alt="" />
+            <span key="preview" type="link" class="actionBtn">
+              {{ text }}
+            </span>
+          </div>
+          <span slot="size" slot-scope="text">
+            {{ text | renderSize }}
           </span>
-        </div>
-        <span slot="size" slot-scope="text">
-          {{ text | renderSize }}
-        </span>
-        <div slot-scope="text" slot="status">
-          <div>{{ statuObj[text.toString()] }}</div>
-        </div>
-        <!-- <template #update_time>
+          <div slot-scope="text" slot="status">
+            <div>{{ statuObj[text.toString()] }}</div>
+          </div>
+          <!-- <template #update_time>
           <div slot-scope="record">
             <div>{{ record.update_time | formatDate }}</div>
           </div>
         </template> -->
-        <!-- 操作 -->
-        <div slot="Action" slot-scope="text, record" class="action-box">
-          <a-button v-if="record.status * 1 !== 1 && record.file_type !== 'asm' && record.status * 1 !== 4" key="preview" type="link" class="actionBtn" @click="transfer(record)">
-            <span>{{ record.status * 1 === 0 ? '重新转换' : '转换' }}</span>
-          </a-button>
-          <a-button v-if="record.file_type === 'asm'" type="link" class="actionBtn" @click="handleAssembly(true, record)">
-            <span>编辑装配</span>
-          </a-button>
-          <a-button v-show="record.status * 1 === 1 || record.status * 1 === 4" key="stop" type="link" class="actionBtn" @click="cancelTranslation(record)">
-            <span>中止转换</span>
-          </a-button>
-          <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePre(record)">
-            <span>预览</span>
-          </a-button>
-          <a-button type="link" class="actionBtn" @click="handleDetail(record, 'detail')">
-            <span>详情</span>
-          </a-button>
-
-          <a-dropdown placement="bottomCenter">
-            <a-button key="more" type="link" class="actionBtn">
-              <span>更多</span>
+          <!-- 操作 -->
+          <div slot="Action" slot-scope="text, record" class="action-box">
+            <a-button v-if="record.status * 1 !== 1 && record.file_type !== 'asm' && record.status * 1 !== 4" key="preview" type="link" class="actionBtn" @click="transfer(record)">
+              <span>{{ record.status * 1 === 0 ? '重新转换' : '转换' }}</span>
             </a-button>
-            <a-menu slot="overlay" class="action-drop">
-              <a-menu-item v-show="record.status * 1 === 0 && record.file_type !== 'asm'" :style="record.status !== 0 ? 'color:#ccc!important;cursor:not-allowed' : ''">
-                <a href="javascript:;" @click="handleDetail(record, 'transformdetail')">转换详情</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;" @click="downLoad(record)">模型下载</a>
-              </a-menu-item>
-              <!-- <a-menu-item>
+            <a-button v-if="record.file_type === 'asm'" type="link" class="actionBtn" @click="handleAssembly(true, record)">
+              <span>编辑装配</span>
+            </a-button>
+            <a-button v-show="record.status * 1 === 1 || record.status * 1 === 4" key="stop" type="link" class="actionBtn" @click="cancelTranslation(record)">
+              <span>中止转换</span>
+            </a-button>
+            <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePre(record)">
+              <span>预览</span>
+            </a-button>
+            <a-button type="link" class="actionBtn" @click="handleDetail(record, 'detail')">
+              <span>详情</span>
+            </a-button>
+
+            <a-dropdown placement="bottomCenter">
+              <a-button key="more" type="link" class="actionBtn">
+                <span>更多</span>
+              </a-button>
+              <a-menu slot="overlay" class="action-drop">
+                <a-menu-item v-show="record.status * 1 === 0 && record.file_type !== 'asm'" :style="record.status !== 0 ? 'color:#ccc!important;cursor:not-allowed' : ''">
+                  <a href="javascript:;" @click="handleDetail(record, 'transformdetail')">转换详情</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a href="javascript:;" @click="downLoad(record)">模型下载</a>
+                </a-menu-item>
+                <!-- <a-menu-item>
                 <a href="javascript:;" @click="handleDetail(record, 'status')">模型状态</a>
               </a-menu-item> -->
 
-              <a-menu-item>
-                <a href="javascript:;" @click="handleDetail(record, 'attr')">模型属性</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;" @click="queryAttr(record)">查找模型属性</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;" @click="getTree(record)">模型构件树</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;" :class="{ notAllowed: record.review_status }" @click="handleDeletePatch('single', record)">删除</a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </div>
-      </a-table>
+                <a-menu-item>
+                  <a href="javascript:;" @click="handleDetail(record, 'attr')">模型属性</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a href="javascript:;" @click="queryAttr(record)">查找模型属性</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a href="javascript:;" @click="getTree(record)">模型构件树</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a href="javascript:;" :class="{ notAllowed: record.review_status }" @click="handleDeletePatch('single', record)">删除</a>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </div>
+        </a-table>
+      </div>
       <a-row type="flex" justify="end">
         <a-pagination style="margin: 12px 24px" v-if="lists.length" size="small" show-quick-jumper show-size-changer :current="page_num" :total="total" :pageSize="page_size" @change="handlePaging" @showSizeChange="changePageSize" />
       </a-row>
@@ -415,13 +417,6 @@ export default {
           this.visibleDetail = true
         })
       }
-    },
-
-    // 改变每页数量
-    changePageSize(current, pageSize) {
-      this.page_num = 1
-      this.page_size = pageSize
-      this.getModelList()
     }
   },
   mounted() {
@@ -497,6 +492,7 @@ export default {
     margin-top: 12px;
     display: flex;
     flex-direction: column;
+    min-height: 100% !important;
     .noData {
       width: 240px;
       margin: 0 auto;

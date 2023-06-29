@@ -9,10 +9,11 @@
 .main .main-content {
   width: 100%;
   height: 100%;
-  -webkit-transition: margin-left 0.35s;
-  transition: margin-left 0.35s;
+  // -webkit-transition: margin-left 0.35s;
+  // transition: margin-left 0.35s;
 }
 .main .main-container {
+  overflow: auto !important;
   width: 100%;
   height: 100%;
 }
