@@ -1,0 +1,8 @@
+{
+  "url": "https://xbase.daxiangyun.com",
+  "app_id": "",
+  "app_key": "",
+  "dx3dJs": "/jssdk/paas/jssdk-2.2.0/javascripts/dx.min.2.2.0.js",
+  "dxSceneEditorJs": "/jssdk/paas/jssdk-2.2.0/javascripts/dx.sceneEditor.js",
+  "staticHost": "/jssdk/paas/jssdk-2.2.0"
+}
