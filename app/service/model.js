@@ -130,7 +130,7 @@ module.exports = class UserService extends egg.Service {
   }
   async view_token(body, header) {
     const data = await axios.post(
-      `${baseConfig.url}/api/open/v1/viewer/token`,
+      `${baseConfig.url}/viewer/api/open/v1/viewer/token`,
       {
         app_id: baseConfig.app_id,
         app_key: baseConfig.app_key,
