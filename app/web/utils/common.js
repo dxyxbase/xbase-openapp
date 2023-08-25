@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 17:53:29
- * @LastEditTime: 2023-06-25 10:37:31
+ * @LastEditTime: 2023-07-12 09:49:33
  * @FilePath: /openapi-demoapp/app/web/utils/common.js
  * @Description:
  */
@@ -32,4 +32,12 @@ export function queryURL(name) {
   const r = window.location.search.substr(1).match(reg)
   if (r != null) return decodeURI(r[2])
   return null
+}
+
+export const standardStatu = {
+  '-1': '处理失败',
+  1: '处理中',
+  2: '可发布',
+  3: '已发布',
+  4: '存档'
 }

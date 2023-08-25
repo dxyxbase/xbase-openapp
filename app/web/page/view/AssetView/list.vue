@@ -3,8 +3,8 @@
     <div class="head_opr">
       <a-button type="primary" @click="handleAddAsset">添加资产</a-button>
 
-      <a-button :disabled="!hasSelected" type="primary" @click="transfer('patch')">转换</a-button>
-      <a-button :disabled="!hasSelected" class="del" @click="handleDeletePatch('patch')">删除</a-button>
+      <!-- <a-button :disabled="!hasSelected" type="primary" @click="transfer('patch')">转换</a-button> -->
+      <!-- <a-button :disabled="!hasSelected" class="del" @click="handleDeletePatch('patch')">删除</a-button> -->
     </div>
     <div class="sceneTableOutContent">
       <div>
@@ -12,19 +12,12 @@
           <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
           <p>暂无内容</p>
         </div>
-        <a-table
-          v-else
-          :row-selection="{
+        <!-- :row-selection="{
             selectedRowKeys: selectedRowKeys,
             onChange: onSelectChange,
             getCheckboxProps: rowSelection.getCheckboxProps
-          }"
-          :columns="columns"
-          :data-source="lists"
-          :pagination="false"
-          :rowKey="record => record.asset_id"
-          class="table-ui"
-        >
+          }" -->
+        <a-table v-else :columns="columns" :data-source="lists" :pagination="false" :rowKey="record => record.asset_id" class="table-ui">
           <div slot="name" slot-scope="text" class="file-name">
             <img :src="require('@/asset/images/scene.png')" alt="" />
             <span key="preview" type="link" class="actionBtn">
@@ -45,7 +38,7 @@
               <span>转换</span>
             </a-button>
             <a-button v-show="record.status * 1 === 1 || record.status * 1 === 2" key="stop" type="link" class="actionBtn" @click="cancelTranslation(record)">
-              <span>中止转换</span>
+              <span>终止转换</span>
             </a-button>
             <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePreview(record)">
               <span>预览</span>
@@ -112,7 +105,7 @@ export default {
     const rowSelection = {
       getCheckboxProps: record => ({
         props: {
-          disabled: record.review_status
+          // disabled: record.status * 1 === 1 || record.status * 1 === 2 || record.status * 1 === 0
         }
       })
     }
@@ -129,9 +122,9 @@ export default {
       visibleDetail: false,
       details: {},
       visibleAdd: false,
-      //文件状态   0转换成功 1转换中 2转换等待中 -2转换失败 -3 上传成功 -4转换失败(转换中止)
+      //文件状态   0转换成功 1转换中 2转换等待中 -2转换失败 -3 上传成功 -4转换失败(转换终止)
       statuObj: {
-        '-4': '转换失败(转换中止)',
+        '-4': '转换失败(转换终止)',
         '-3': '上传成功',
         '-2': '转换失败',
         0: '转换成功',
@@ -151,7 +144,8 @@ export default {
         page_num: 1,
         page_size: 10,
         order: 4,
-        sort: 0
+        sort: 0,
+        type: 2
       },
       total: 0,
       page_num: 1,
@@ -217,6 +211,10 @@ export default {
         if (res.code !== ResponseStatus.success) return
         this.lists = res.data.list
         this.total = res.data.total
+        if (this.searchForm.page_num !== 1 && res.data.list.length === 0) {
+          this.searchForm.page_num = 1
+          this.getAssetList()
+        }
       })
     },
     // 表格选择发生变化
@@ -239,7 +237,6 @@ export default {
     },
     // $ 弹窗：预览 模块
     handlePreview(item) {
-      console.log('预览', item)
       this.previewName = `${item.name}预览`
       this.previewPath = item.render_path
       this.asset_type = item.asset_type
@@ -300,7 +297,7 @@ export default {
             }
           })
         },
-        onCancel() {
+        onCancel: () => {
           that.selectedRowKeys = []
         }
       })
@@ -382,7 +379,7 @@ export default {
     margin-top: 12px;
     display: flex;
     flex-direction: column;
-    min-height: 100% !important;
+    max-height: 100% !important;
     .noData {
       width: 240px;
       margin: 0 auto;

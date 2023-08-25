@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 18:44:22
- * @LastEditTime: 2023-06-26 17:41:19
+ * @LastEditTime: 2023-07-11 15:26:07
  * @FilePath: /openapi-demoapp/app/web/apis/model.js
  * @Description:前端模型接口
  */
@@ -58,22 +58,13 @@ export const model_transform_detail = params => {
   })
 }
 
-export const model_down = params => {
-  return request({
-    url: '/api/open/v1/model/download',
-    method: 'GET',
-    params,
-    responseType: 'blob'
-  })
-}
-
-export const model_status = params => {
-  return request({
-    url: '/api/open/v1/model/fs/status',
-    method: 'GET',
-    params
-  })
-}
+// export const model_status = params => {
+//   return request({
+//     url: '/api/open/v1/model/fs/status',
+//     method: 'GET',
+//     params
+//   })
+// }
 
 export const model_attr = params => {
   return request({

@@ -52,7 +52,7 @@ X-Base 平台支持用户上传 BIM 模型数据，包括 Revit, Bentley Microst
 - app_id: 应用 ID
 - app_key: 应用密钥，登录 X-Base 平台控制台，在应用详情页面可以获取，请妥善保管
 
-> 如何获取 `app_id`和 `app_key`请参考[大象云的文档中心中的[入门指南][使用流程]](https://xbase.daxiangyun.com/doc/api)
+> 如何获取 `app_id`和 `app_key`请参考[大象云的文档中心中的[入门指南][使用流程]](https://xbase.daxiangyun.com/doc/api#/guide/work-flow)
 
 ## 如何运行
 

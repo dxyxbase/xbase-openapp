@@ -28,5 +28,3 @@ yarn-error.log*
 *.sln
 *.sw*
 .history
-package-lock.json
-yarn.lock

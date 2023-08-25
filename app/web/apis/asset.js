@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-07 10:27:09
- * @LastEditTime: 2023-06-16 11:43:46
+ * @LastEditTime: 2023-08-21 15:58:49
  * @FilePath: /openapi-demoapp/app/web/apis/asset.js
  * @Description:前端资产接口
  */
@@ -63,3 +63,24 @@ export const asset_upload_tus = data => {
 //     data: data
 //   })
 // }
+export const asset_assembly = data => {
+  return request({
+    url: '/api/open/v1/asset/assembly',
+    method: 'POST',
+    data: data
+  })
+}
+export const getAsset_by_asm = data => {
+  return request({
+    url: '/api/open/v1/asset/get-by-asm',
+    method: 'POST',
+    data: data
+  })
+}
+export const getAsm_by_asset = data => {
+  return request({
+    url: '/api/open/v1/asset/get-by-asset',
+    method: 'POST',
+    data: data
+  })
+}

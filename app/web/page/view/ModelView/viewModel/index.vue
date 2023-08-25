@@ -91,6 +91,7 @@
 import { model_view_token } from '@/apis/model.js'
 import { port_add, port_list, port_del, scene_detail } from '@/apis/port.js'
 import { ResponseStatus } from '@/framework/network/util.js'
+import { viewerToken } from '@/utils/setting.js'
 export default {
   name: 'viewModel',
   // eslint-disable-next-line vue/require-prop-types
@@ -144,7 +145,6 @@ export default {
   },
   methods: {
     viewImg(item) {
-      console.log('查询数据', item)
       // 查询视点详情
       scene_detail({ viewport_id: item.viewport_id }).then(res => {
         if (res.code !== ResponseStatus.success) return this.$message.error('查询失败')
@@ -265,7 +265,6 @@ export default {
               this.loading = false
             })
         } else {
-          console.log('error submit!!')
           return false
         }
       })
@@ -279,7 +278,7 @@ export default {
         data: { token }
       } = result
       return {
-        Authorization: `Bear ${token}`
+        Authorization: viewerToken(token)
       }
     },
     async init() {
@@ -341,7 +340,7 @@ export default {
         //   }
         // })
         this.viewer.on(DX.Events.SCENE_READY, data => {
-          console.log('ready之后', data)
+          console.log('model  ready')
         })
       })
     }

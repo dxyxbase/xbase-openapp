@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 11:04:15
- * @LastEditTime: 2023-06-25 09:58:03
+ * @LastEditTime: 2023-08-25 10:01:39
  * @FilePath: /openapi-demoapp/app/web/utils/setting.js
  * @Description:
  */
@@ -11,3 +11,14 @@ export const getPageTitle = pageTitle => {
   }
   return `${title}`
 }
+export const viewerToken = token => {
+  return `Bearer ${token}`
+}
+// 支持上传模型格式
+export const fileModel = '.rvt,.ifc,.IFC,.dgn,.dwg,.skp,.obj,.stl,.fbx,.glb,.3dtiles'
+// 不支持瓦片数据格式
+export const export_cim_data = '.3dtiles.dwg'
+// 支持语义数据格式
+export const export_bim_data = '.ifc.rvt.dgn'
+// 支持上传资产格式
+export const fileAsset = '.zip,.tiff,.tif'

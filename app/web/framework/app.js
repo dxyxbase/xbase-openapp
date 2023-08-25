@@ -1,17 +1,20 @@
 /**
  * @Date: 2023-06-05 19:10:35
- * @LastEditTime: 2023-06-28 15:00:52
+ * @LastEditTime: 2023-07-14 09:29:35
  * @FilePath: /openapi-demoapp/app/web/framework/app.js
  * @Description:
  */
 import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
 import * as setting from '@/utils/setting.js'
+// import storage from 'store'
+// import { SET_TOKEN } from '@/page/store/mutation-type'
+// import vueRouter from '@/page/router'
+// const token = storage.get(SET_TOKEN)
 export default class App {
   constructor(config) {
     this.config = config
   }
-
   bootstrap() {
     const options = this.create(window.__INITIAL_STATE__)
     const app = new Vue(options)

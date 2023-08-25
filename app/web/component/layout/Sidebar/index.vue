@@ -35,7 +35,6 @@ export default {
       return path
     },
     routes() {
-      // console.log(this.$router.options.routes)
       return this.$router.options.routes
     },
     // variables() {
@@ -48,3 +47,16 @@ export default {
   }
 }
 </script>
+<style lang="less" scoped>
+@import '~@/style/variables.less';
+::v-deep .el-submenu.is-active {
+  > .el-submenu__title {
+    color: @menuActiveText !important;
+  }
+}
+::v-deep .el-menu-item,
+::v-deep .el-submenu__title {
+  height: 48px;
+  line-height: 48px;
+}
+</style>

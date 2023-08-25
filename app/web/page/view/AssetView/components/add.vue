@@ -11,14 +11,14 @@
               getValueFromEvent: getAssetsNameValue
             }
           ]"
-          placeholder="分片上传默认源文件名称"
+          placeholder="请输入GIS资产名称"
           @blur="handleCheck"
           autocomplete="off"
         />
       </a-form-item>
       <a-form-item label="资产类型">
         <a-select v-decorator="['asset_type', { rules: [{ required: true }], initialValue: 4 }]" @change="handleAssetsType">
-          <a-select-option v-for="(item, i) in typeList" :key="i" :disabled="item.id === 3" :value="item.value">
+          <a-select-option v-for="(item, i) in typeList" :key="i" :value="item.value">
             {{ item.text }}
           </a-select-option>
         </a-select>
@@ -52,7 +52,7 @@ export default {
       typeList: [
         { id: 1, text: '影像', value: 1 },
         { id: 2, text: '地形', value: 2 },
-        // { id: 3, text: '矢量', value: 3 },
+        { id: 3, text: '矢量', value: 3 },
         { id: 4, text: '倾斜摄影模型', value: 4 }
       ],
       params: {},

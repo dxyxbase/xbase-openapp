@@ -21,14 +21,7 @@
         <a-radio :value="2">否</a-radio>
       </a-radio-group>
     </div>
-    <div class="item">
-      <span class="l">导出瓦片数据：</span>
-      <a-radio-group v-model="export_cim_data" class="radioGroup">
-        <a-radio :value="1" style="margin-right: 20px">是</a-radio>
-        <a-radio :value="2">否</a-radio>
-      </a-radio-group>
-    </div>
-    <div class="item" v-if="export_cim_data === 1 && isrvt">
+    <div class="item" v-if="isrvt">
       <span class="l">精细等级：</span>
       <a-checkbox-group v-model="hierarchy" :default-value="['space']">
         <span v-for="item in optionsWithDisabled" :key="item.value" class="group-check-box">
@@ -45,6 +38,20 @@
     <div class="item" v-if="isrvt">
       <span class="l">导出二维视图：</span>
       <a-radio-group v-model="export_2d_views" class="radioGroup">
+        <a-radio :value="1" style="margin-right: 20px">是</a-radio>
+        <a-radio :value="2">否</a-radio>
+      </a-radio-group>
+    </div>
+    <div class="item" v-if="tempItem.file_type === 'dgn'">
+      <span class="l">导出隐藏构件：</span>
+      <a-radio-group v-model="export_hidden_elements" class="radioGroup">
+        <a-radio :value="1" style="margin-right: 20px">是</a-radio>
+        <a-radio :value="2">否</a-radio>
+      </a-radio-group>
+    </div>
+    <div class="item" v-if="tempItem.file_type === 'dgn'">
+      <span class="l">导出模型空间：</span>
+      <a-radio-group v-model="export_model_space" class="radioGroup">
         <a-radio :value="1" style="margin-right: 20px">是</a-radio>
         <a-radio :value="2">否</a-radio>
       </a-radio-group>
@@ -67,6 +74,7 @@
 }
 </style>
 <script>
+import { export_bim_data } from '@/utils/setting.js'
 export default {
   data() {
     const optionsWithDisabled = [
@@ -78,11 +86,12 @@ export default {
       export_room: 2, // 导出房间  目前仅支持rvt文件, 默认false
       export_material: 2, // 导出材质  目前仅支持rvt文件, 默认false
       export_bim_data: 2, // 是否转换语义 目前仅支持ifc、rvt文件, 默认false
-      export_cim_data: 2, //是否导出瓦片数据
       detail_level: 7, // 精细度  仅支持rvt文件, 默认7
       export_2d_views: 2, //是否导出二维视图  仅支持rvt文件, 默认false
       optionsWithDisabled,
-      supCim: ['rvt', 'skp', 'fbx', 'ifc', 'obj', 'stl', 'glb'],
+      exportBimData: export_bim_data,
+      export_hidden_elements: 2,
+      export_model_space: 2,
       hierarchy: ['component'],
       marks: {
         1: '1',
@@ -98,14 +107,15 @@ export default {
       return checkedNum === 2 && this.hierarchy.indexOf(value) === -1
     },
     handleClick(flag) {
-      if (this.hierarchy.length === 0 && this.export_cim_data === 1 && this.isrvt) return this.$message.warning('rvt格式导出瓦片数据的精细等级最少选择一个')
+      if (this.hierarchy.length === 0 && this.isrvt) return this.$message.warning('rvt格式导出瓦片数据的精细等级最少选择一个')
       if (flag === 'sure') {
         const params = {
           model_id: this.tempItem.model_id,
           export_room: this.export_room === 1,
           export_material: this.export_room === 1,
           export_bim_data: this.export_bim_data === 1,
-          export_cim_data: this.export_cim_data === 1,
+          export_hidden_elements: this.export_hidden_elements === 1,
+          export_model_space: this.export_model_space === 1,
           detail_level: this.detail_level,
           export_2d_views: this.export_2d_views === 1,
           hierarchy: this.isrvt ? this.hierarchy : []
@@ -121,7 +131,7 @@ export default {
       return this.tempItem.file_type === 'rvt'
     },
     isifcrvt() {
-      const str = 'ifcrvt'
+      const str = this.exportBimData
       return str.indexOf(this.tempItem.file_type) >= 0
     }
   },

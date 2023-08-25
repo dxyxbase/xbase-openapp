@@ -9,7 +9,7 @@
 </template>
 <script type="text/babel">
 import Vue from 'vue'
-import { Menu, Submenu, MenuItem, MenuItemGroup, DropdownMenu, DropdownItem } from 'element-ui'
+import { Menu, Submenu, MenuItem, MenuItemGroup, Dialog, DropdownMenu, DropdownItem } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import Antd from 'ant-design-vue/es'
 import 'ant-design-vue/dist/antd.less'
@@ -21,17 +21,19 @@ import 'babel-polyfill'
 import VueBus from 'vue-bus'
 import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
-
+import directives from '@/utils/directive.js'
 const config = require('@base/xbase-config.json')
 Vue.use(Viewer)
 Viewer.setDefaults({
   zIndexInline: 9999
 })
+directives()
 Vue.use(VueBus)
 Vue.use(DropdownMenu)
 Vue.use(DropdownItem)
 Vue.use(Menu)
 Vue.use(Submenu)
+Vue.use(Dialog)
 Vue.use(MenuItem)
 Vue.use(MenuItemGroup)
 Vue.use(Antd)
@@ -96,3 +98,17 @@ export default {
   mounted() {}
 }
 </script>
+<style lang="less" scoped>
+::v-deep .tdName {
+  padding: 0 !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+}
+::v-deep .ant-table-tbody > tr > td {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  .actionBtn {
+    font-size: 12px !important;
+  }
+}
+</style>

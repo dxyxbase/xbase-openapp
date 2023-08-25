@@ -123,6 +123,7 @@ export default {
       const assetsGroup = lodash.groupBy(arrs2, 'AssetType')
       const image = assetsGroup[1] || []
       const model = assetsGroup[4] || []
+      const vectors = assetsGroup[3] || []
       const terrains = assetsGroup[2] || []
       let params = {
         ...JSON.parse(JSON.stringify({ ...this.formParam, size: size })),
@@ -161,6 +162,15 @@ export default {
                 elevation: 0
               }
             }),
+            // 矢量
+            vectors: vectors.map(v => {
+              return {
+                id: v.AssetId,
+                is_visible: true,
+                name: v.Name,
+                url: v.ProcessPath
+              }
+            }),
             terrains: terrains.map(t => {
               return {
                 id: t.AssetId,
@@ -184,7 +194,7 @@ export default {
         .then(r => {
           if (r.code !== ResponseStatus.success) return this.$message.error('创建场景失败')
           this.$message.success('场景创建成功')
-          this.$bus.emit('upData')
+          this.$bus.emit('upData/sence')
         })
         .finally(() => {
           this.isParams = false
@@ -318,7 +328,6 @@ export default {
         setTimeout(() => {
           rootCheckBox.classList.remove('ant-tree-checkbox-indeterminate')
           rootCheckBox.classList.remove('ant-tree-checkbox-checked')
-          console.log(exceptTerrainKeyArr.length, checkedKeysCopy.length)
           if (exceptTerrainKeyArr.length + 1 > checkedKeysCopy.length) {
             rootCheckBox.classList.add('ant-tree-checkbox-indeterminate') // 全部按钮半选
           } else {
@@ -366,7 +375,6 @@ export default {
       let description = this.form.getFieldValue('description')
       this.form.validateFields(async err => {
         if (!err) {
-          console.log(name, size, description, source)
           let params = {
             // name: name,
             size: size,
@@ -377,7 +385,7 @@ export default {
           sence_edit(params).then(r => {
             if (r.code !== ResponseStatus.success) return this.$message.error('创建场景失败')
             this.$message.success('场景创建成功')
-            this.$bus.emit('upData')
+            this.$bus.emit('upData/sence')
           })
         }
       })

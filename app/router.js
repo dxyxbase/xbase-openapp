@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-05 15:44:38
- * @LastEditTime: 2023-06-29 10:38:55
+ * @LastEditTime: 2023-08-25 13:07:10
  * @FilePath: /openapi-demoapp/app/router.js
  * @Description:
  */
@@ -28,10 +28,10 @@ module.exports = app => {
   router.get('/api/open/v1/model/model', controller.openApi.model_detail)
   // 模型转换详情
   router.get('/api/open/v1/model/transform/info', controller.openApi.model_transform_detail)
-  // 模型下载
-  router.get('/api/open/v1/model/download', controller.openApi.model_down)
+  // 模型下载  避免auth中间键过滤
+  router.get('/router/model/download', controller.openApi.model_down)
   // 获取模型状态
-  router.get('/api/open/v1/model/fs/status', controller.openApi.model_status)
+  // router.get('/api/open/v1/model/fs/status', controller.openApi.model_status)
   // 获取模型属性
   router.get('/api/open/v1/model/ds/property', controller.openApi.model_attr)
   // 查找模型属性
@@ -48,7 +48,7 @@ module.exports = app => {
   router.post('/api/open/v1/model/assembly/edit', controller.openApi.model_assembly_edit)
   // 获取模型构件属性
   //模型分片上传
-  router.post('/api/open/v1/model/model', controller.openApi.model_upload_tus)
+  // router.post('/api/open/v1/model/model', controller.openApi.model_upload_tus)
 
   // 资产分片上传
   router.post('/api/open/v1/asset/asset', controller.openApi.asset_upload_tus)
@@ -96,7 +96,29 @@ module.exports = app => {
   router.get('/api/open/v1/viewport/viewport', controller.openApi.port_detail)
   // 查询构件属性
   router.get('/api/open/v1/model/ds/property/uid', controller.openApi.query_uid)
-
+  // asset查询构件属性
+  router.get('/api/open/v1/asset/ds/property/uid', controller.openApi.query_uid_byAsset)
   // 分片上传
   // router.post('/api/open/v1/tus/upload', controller.openApi.tus_upload)
+  // BIM资产装配
+  router.post('/api/open/v1/asset/assembly', controller.openApi.asset_assembly)
+  // 查询装配文件关联资产
+  router.post('/api/open/v1/asset/get-by-asm', controller.openApi.getAsset_by_asm)
+  // 查询资产关联的装配
+  router.post('/api/open/v1/asset/get-by-asset', controller.openApi.getAsm_by_asset)
+  router.get('/api/open/v1/graph-service/cim/category', controller.openApi.getCimCategory)
+
+  router.post('/api/xbase/v1/graph-service/cim/update', controller.openApi.updateSemantic)
+  router.post('/api/open/v1/graph-service/cim/save', controller.openApi.saveSemantic)
+  router.get('/api/open/v1/graph-service/cim', controller.openApi.getElementSemanticProperty)
+  router.post('/api/open/v1/graph-service/cim/delete', controller.openApi.deleteSemantic)
+  router.get('/api/open/v1/graph-service/cim/nodes', controller.openApi.getCimNodeSemantic)
+
+  // 路由拆分
+  // 数据标准化服务
+  require('./routers/data')(app)
+  // 碰撞检查服务
+  require('./routers/clash')(app)
+  // 数据高级管理服务
+  require('./routers/search')(app)
 }

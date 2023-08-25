@@ -1,5 +1,5 @@
 <template>
-  <div class="boxs">
+  <div class="boxs_">
     <span class="titleIcon" @click="go2Back">
       <a-icon type="left" />
     </span>
@@ -9,7 +9,8 @@
 </template>
 <script>
 import { model_view_token } from '@/apis/model.js'
-import { load_list, sence_edit, sence_detail, searchLocation, getTilesetJson } from '@/apis/sence.js'
+import { load_list, sence_edit, sence_detail, searchLocation, getTilesetJson,getCimCategory ,getElementSemanticProperty,updateSemantic,saveSemantic,deleteSemantic,getCimNodeSemantic} from '@/apis/sence.js'
+import { viewerToken } from '@/utils/setting.js'
 export default {
   components: {
     // iconFontDX,
@@ -41,6 +42,7 @@ export default {
       return `${window.DXYP.sdkServer.baseUrl}viewer/model/`
     },
     go2Back() {
+      window.sceneEditor = null
       this.$router.push('/sceneView')
     },
     async getmodel_view_token() {
@@ -70,7 +72,7 @@ export default {
       const model_view_token = await this.getmodel_view_token()
       // 视图 viewerToken
       options.previewToken = {
-        Authorization: `Bear ${model_view_token}`
+        Authorization: viewerToken(model_view_token)
       }
       options.sceneAssetsBaseUrl = this.getSceneBaseUrl()
       // debugger
@@ -80,6 +82,13 @@ export default {
         getLoadList: load_list, // 获取资产模型列表
         searchLocation: searchLocation, //根据关键词联想搜索地址
         saveAsScene: sence_edit, // 另存场景接口
+        // 新增
+        getCimCategory: getCimCategory,
+        getElementSemanticProperty: getElementSemanticProperty,
+        updateSemantic: updateSemantic, 
+        saveSemantic: saveSemantic,
+        deleteSemantic: deleteSemantic,
+        getCimNodeSemantic: getCimNodeSemantic,
         getTilesetJson: url => {
           return getTilesetJson(url, { Headers: options.previewToken })
         }, // 获取3dtiles json数据
@@ -116,7 +125,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.boxs {
+.boxs_ {
   position: relative;
   width: 100%;
   height: 100%;

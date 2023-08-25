@@ -1,7 +1,7 @@
 <template>
   <div class="flexBetween">
     <div>
-      <a-upload ref="uploadWrapper" name="file" :multiple="false" action="" :beforeUpload="beforeUpload" :file-list="fileList" :remove="handleRemove" :accept="up_type === 'model' ? fileModel : fileAsset" :customRequest="customRequest" :showUploadList="false" @preview="preview" @change="handleChange">
+      <a-upload ref="uploadWrapper" name="file" :multiple="false" action="" :beforeUpload="beforeUpload" :file-list="fileList" :remove="handleRemove" :accept="up_type === 'model' ? fileModel : asset_type === 3 ? '.geojson' : fileAsset" :customRequest="customRequest" :showUploadList="false" @preview="preview" @change="handleChange">
         <a-button :disabled="uploadDisabled" class="btn" type="primary">
           {{ is_slice ? '分片上传' : '普通上传' }}
         </a-button>
@@ -17,6 +17,7 @@ import * as tus from 'tus-js-client'
 import { model_upload_tus, model_upload } from '@/apis/model.js'
 import { asset_upload, asset_upload_tus, tus_upload } from '@/apis/asset.js'
 import { ResponseStatus } from '@/framework/network/util.js'
+import { fileModel, fileAsset } from '@/utils/setting.js'
 export default {
   props: {
     value: {
@@ -63,8 +64,8 @@ export default {
     return {
       fileList: [],
       // 模型文件格式
-      fileModel: '.rvt,.ifc,.IFC,.dgn,.dwg,.skp,.obj,.stl,.fbx,.glb,.3dtiles,.nwd', // model类型
-      fileAsset: '.zip,.tiff,.tif', // asset
+      fileModel: fileModel, // model类型
+      fileAsset: fileAsset, // asset
       // open5245 支持更多文件类型上传(nwd,nwc,gltf)
       uploadDisabled: false,
       timer: null,
@@ -99,16 +100,14 @@ export default {
         chunkSize: 10 * 1024 * 1024,
         headers: {
           Accept: 'application/json;',
-          Authorization: `Bear ${storage.get(SET_TOKEN)}`
+          Authorization: `Bearer ${storage.get(SET_TOKEN)}`
         },
         uploadSize: item.size,
         onError(error) {
-          console.log('error', error)
           throw error
         },
         onChunkComplete: function (chunkSize, bytesAccepted, bytesTotal) {
           let percentage = ((bytesAccepted / bytesTotal) * 100).toFixed(2)
-          console.log(bytesUploaded, bytesTotal, `${percentage}%`)
         },
         onSuccess() {
           if (that.up_type === 'model') {
@@ -140,14 +139,17 @@ export default {
         size: item.size,
         upload_file_id: id
       }
-      asset_upload_tus(params).then(res => {
-        this.uploadDisabled = false
-        if (res.code === ResponseStatus.success) {
-          this.$message.success('上传成功')
-          this.$bus.emit('upData/asset')
-          // this.$emit('refreshInit')
-        }
-      })
+      asset_upload_tus(params)
+        .then(res => {
+          if (res.code === ResponseStatus.success) {
+            this.$message.success('上传成功')
+            this.$bus.emit('upData/asset')
+            // this.$emit('refreshInit')
+          }
+        })
+        .finally(() => {
+          this.uploadDisabled = false
+        })
     },
     // 保存模型
     uploadModel(upload, item) {
@@ -157,13 +159,17 @@ export default {
         size: item.size,
         upload_file_id: id
       }
-      model_upload_tus(params).then(res => {
-        this.uploadDisabled = false
-        if (res.code === ResponseStatus.success) {
-          this.$message.success('上传成功')
-          this.$emit('refreshInit')
-        }
-      })
+      model_upload_tus(params)
+        .then(res => {
+          this.uploadDisabled = false
+          if (res.code === ResponseStatus.success) {
+            this.$message.success('上传成功')
+            this.$emit('refreshInit')
+          }
+        })
+        .finally(() => {
+          this.uploadDisabled = false
+        })
     },
     // 自定义上传
     customRequest(data) {
@@ -188,12 +194,16 @@ export default {
         let formData = new FormData()
         formData.append('file', data.file)
         this.uploadDisabled = true
-        model_upload(formData).then(res => {
-          this.uploadDisabled = false
-          if (res.code !== ResponseStatus.success) return
-          this.$message.success('上传成功')
-          this.$emit('refreshInit')
-        })
+        model_upload(formData)
+          .then(res => {
+            this.uploadDisabled = false
+            if (res.code !== ResponseStatus.success) return
+            this.$message.success('上传成功')
+            this.$emit('refreshInit')
+          })
+          .finally(() => {
+            this.uploadDisabled = false
+          })
       } else {
         let formData = new FormData()
         formData.append('file', data.file)
@@ -201,12 +211,16 @@ export default {
         formData.append('asset_type', this.asset_type * 1)
 
         this.uploadDisabled = true
-        asset_upload(formData).then(res => {
-          this.uploadDisabled = false
-          if (res.code !== ResponseStatus.success) return
-          this.$bus.emit('upData/asset')
-          this.$message.success('上传成功')
-        })
+        asset_upload(formData)
+          .then(res => {
+            this.uploadDisabled = false
+            if (res.code !== ResponseStatus.success) return
+            this.$bus.emit('upData/asset')
+            this.$message.success('上传成功')
+          })
+          .finally(() => {
+            this.uploadDisabled = false
+          })
       }
     },
     handleChange(file) {},
@@ -219,6 +233,9 @@ export default {
         fileArr = this.fileModel
       } else if (this.up_type === 'asset') {
         fileArr = this.fileAsset
+        if (this.asset_type * 1 === 3) {
+          fileArr = '.geojson'
+        }
       }
       return fileArr.includes(typeFile.toLowerCase())
     },
@@ -230,11 +247,14 @@ export default {
           this.$message.error('不支持该格式，请重新选择')
           reject(new Error('不支持该格式，请重新选择'))
         }
-        // const isLt100M = file.size / 1024 / 1024 < 100
-        // if (!isLt100M) {
-        //   this.$message.error('最大支持100MB文件')
-        //   reject(new Error('最大支持100MB文件'))
-        // }
+        const type = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length)
+        if (type === 'geojson') {
+          const isLt5M = file.size / 1024 / 1024 <= 5
+          if (!isLt5M) {
+            this.$message.error('矢量资产最大支持5MB文件')
+            reject(new Error('矢量资产最大支持5MB文件'))
+          }
+        }
         resolve(isFile)
       })
     }

@@ -1,35 +1,33 @@
 <template>
-  <div class="viewModel">
-    <a-modal wrapClassName="previewModal" centered :destroyOnClose="true" :title="fileName" :visible="visible" :footer="null" :maskClosable="false" :keyboard="false" :width="'calc(100% - 48px)'" :height="'calc(100% - 48px)'" class="pop-ui" @cancel="handleCancel">
-      <div class="view-box">
-        <div class="top-change"></div>
-        <div class="contenter">
-          <div id="contenter_map" ref="contenter_map">
-            <Attribute
-              v-show="showAttribute"
-              :attributeData="attributeData"
-              :position="{
-                top: '0',
-                left: '0'
-              }"
-              resizeLimitClass="viewerAppWrapper"
-              dragLimitClass="viewerAppWrapper"
-              class="popDom"
-              @closePop="closePop"
-            />
-          </div>
+  <div class="viewModel_">
+    <el-dialog :modal-append-to-body="false" width="100%" custom-class="center-dialog" wrapClassName="previewModal_1" :destroyOnClose="true" :title="fileName" :visible="visible" :footer="null" :maskClosable="false" :keyboard="false" @close="handleCancel">
+      <div class="contenter">
+        <div id="contenter_map" class="contenter_map" ref="contenter_map">
+          <Attribute
+            v-show="showAttribute"
+            :attributeData="attributeData"
+            :position="{
+              top: '0',
+              left: '0'
+            }"
+            resizeLimitClass="contenter_map"
+            dragLimitClass="contenter_map"
+            class="popDom"
+            @closePop="closePop"
+          />
         </div>
       </div>
-    </a-modal>
-    <div class="createDialog"></div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import { model_view_token } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
-import { sence_detail, query_uid } from '@/apis/sence.js'
+import { getResourceUrl } from '@/utils/layerManager.js'
+import { sence_detail, query_uid_byAsset } from '@/apis/sence.js'
 import dealProperties from './dealProperties'
 import Attribute from './Attribute.vue'
+import { viewerToken } from '@/utils/setting.js'
 const showPanels = []
 let previewData = {}
 export default {
@@ -58,6 +56,7 @@ export default {
       viewPreImg: false,
       imgName: null,
       loading: false,
+      previewModels: [],
       thumbnail: '',
       attributeKey: 'CUSTOM_BTN',
       showAttribute: false, // 是否展示自定义的属性弹框
@@ -87,6 +86,26 @@ export default {
       visiblePort: false
     }
   },
+
+  watch: {
+    path(path) {
+      if (!path) return
+      this.destory().initApp()
+    },
+    showAttribute(newVal) {
+      if (newVal) {
+        const ele = window.document.getElementsByClassName('attributeCus')[0]
+        let className = ele.getAttribute('class')
+        className = className.replace('attributeCus', 'attributeCus_click')
+        ele.setAttribute('class', className)
+      } else {
+        const ele = window.document.getElementsByClassName('attributeCus_click')[0]
+        let className = ele.getAttribute('class')
+        className = className.replace('attributeCus_click', 'attributeCus')
+        ele.setAttribute('class', className)
+      }
+    }
+  },
   methods: {
     // 关闭自定义属性弹框
     closePop(modelType) {
@@ -102,11 +121,9 @@ export default {
       // get请求selectIds
       const params = {
         uid: selectIds[0],
-        model_id: modelId,
-        page_num: 0,
-        page_size: selectIds.length || 1
+        asset_id: modelId
       }
-      query_uid(params).then(res => {
+      query_uid_byAsset(params).then(res => {
         if (res.code === ResponseStatus.success) {
           if (!res.data) return
           const propertyArr = [res.data.categories] || []
@@ -167,7 +184,7 @@ export default {
         data: { token }
       } = result
       return {
-        Authorization: `Bear ${token}`
+        Authorization: viewerToken(token)
       }
     },
 
@@ -194,6 +211,13 @@ export default {
       let defaultZIndex = 30
       let zIndex = Math.floor(defaultZIndex + Date.now() / 500 - this.zIndex)
       return zIndex < 5 ? 5 : zIndex
+    },
+    updateModelBimPreview(data, state) {
+      data.toggled = undefined
+      app.execute('DX_COMMAND_UPDATE_CIM_MODEL_BIM_PREVIEW', {
+        ...data,
+        state
+      })
     },
     async init() {
       let options = new DX.DefaultConfigs()
@@ -264,7 +288,8 @@ export default {
         this.viewer.setToolbarItems(this.fileId ? options.mainToolbar : [])
         this.app.commandManager.updateMutexCommads(commandManagerObj)
         // 上传之后拿到对应路径（1.通过上传接口的返回结果拿到对应path，2.通过管理界面上传之后更多中渲染路径获取）
-        await this.app.mainWindow.openFile(this.renderPath)
+        // this.renderPath
+        await this.app.mainWindow.openFile()
 
         app.mainWindow.update()
 
@@ -299,7 +324,14 @@ export default {
         })
         app.viewer.enableDepthTestAgainstTerrain(true)
         app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW')
-        let modelList = this.sceneConfig.layer.models
+        let modelList = this.sceneConfig.layer.models || []
+        modelList = modelList.filter(item => {
+          return item.type !== 1
+        })
+        this.previewModels = modelList.map(model => {
+          return model.id
+        })
+        app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW', { toggled: true, models: this.previewModels })
         app.viewer.on(DX.Events.ADD_MODEL_PREVIEW, data => {
           if (!modelList || previewData.id === data.id) return
           if (previewData.bimApp) previewData.bimApp.destroy()
@@ -326,7 +358,11 @@ export default {
 
         app.viewer.on(DX.Events.REMOVE_MODEL_PREVIEW, id => {
           if (previewData.id === id) {
-            if (previewData.bimApp) previewData.bimApp.destroy()
+            if (previewData.bimApp) {
+              const domElement = previewData.bimApp.mainWindow.dom
+              previewData.bimApp.destroy()
+              domElement.remove()
+            }
             previewData = {}
           }
         })
@@ -343,7 +379,7 @@ export default {
 
           let url
           if (modelData.hierarchy.length === 2) {
-            url = modelData.hierarchy[type === 'indoor_mode' ? 1 : 0].value
+            url = modelData.hierarchy[type === 'indoor_mode' ? 0 : 1].value
           } else if (modelData.hierarchy.length === 1) {
             url = modelData.hierarchy[0].value
           } else {
@@ -423,20 +459,48 @@ export default {
         bimApp.mainWindow.update()
       })
       return bimApp
+    },
+    observerClick() {
+      // 监听鼠标点下事件
+      this.zIndex = Date.now() / 500
+      const popDoms = Array.from(document.getElementsByClassName('popDom'))
+      if (popDoms.length) {
+        popDoms.forEach(item => {
+          item.addEventListener(
+            'mousedown',
+            () => {
+              this.mouseDown(item)
+            },
+            { signal: controller.signal }
+          )
+        })
+      }
     }
   },
   mounted() {
     this.init()
+    this.observerClick()
   }
 }
 </script>
-<style lang="less">
+<style lang="less" scoped>
+::v-deep .free-roaming-tip {
+  left: 0 !important;
+}
+::v-deep .ant-modal-body {
+  padding: 0 !important;
+}
+
+.center-dialog {
+  // top: 50%;
+  // transform: translateY(-50%);
+}
 // 自定义按钮样式
-.attributeCus {
+::v-deep .attributeCus {
   background: url('~@/asset/attributePop/attribute.svg') !important;
 }
 
-.attributeCus_click {
+::v-deep .attributeCus_click {
   background-image: url('~@/asset/attributePop/attribute-click.svg') !important;
 }
 .attributeCus,
@@ -528,46 +592,45 @@ export default {
   }
 }
 .contenter {
-  flex-grow: 1;
-  overflow: hidden;
-  height: 0;
+  width: 100%;
+  height: 100%;
 }
 #contenter_map {
   height: 100% !important;
   box-sizing: border-box;
   border-top: 1px solid #e8e8e8;
 }
-::v-deep .ant-modal {
-  padding-bottom: 0;
-  .ant-modal-title {
-    text-align: left !important;
-    font-weight: 600;
-    color: #333333;
+::v-deep .el-dialog {
+  height: 100%;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  .el-dialog__header {
+    flex-grow: 0;
+    flex-shrink: 0;
+    position: relative;
+    padding: 10px 10px;
   }
-  .ant-modal-close {
-    color: #333333;
-    &:hover,
-    &:focus {
-      color: #333333;
-    }
+  .el-dialog__headerbtn {
+    top: 50%;
+    transform: translateY(-50%);
   }
-  .ant-modal-content {
-    height: 100% !important;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .ant-modal-body {
-    //height: 90%;
-    width: 100%;
-    flex: 1;
-    overflow: hidden;
+  .el-dialog__body {
+    flex-grow: 1;
     padding: 0 !important;
+    height: calc(100% - 50px) !important;
+    position: relative;
   }
 }
-.viewModel {
-  min-width: 1366px;
-  min-height: 768px;
+.viewModel_ {
+  position: absolute;
+  width: 93% !important;
+  height: 93% !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: auto;
+
   .previewTop {
     height: 40px;
     background: #f8f8f8;

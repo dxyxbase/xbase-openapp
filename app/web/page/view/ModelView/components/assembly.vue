@@ -34,14 +34,14 @@
   </div>
 </template>
 <script type="text/babel">
-import { model_list, model_assembly, model_assembly_edit } from '@/apis/model.js'
+import { model_list, model_assembly, model_assembly_edit, model_detail } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 let lodash = require('lodash')
 export default {
   data() {
     return {
       sub_model_ids: [],
-      indeterminate: true,
+      indeterminate: false,
       checkAll: false,
       plainOptions: [],
       lists: [],
@@ -103,18 +103,33 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     this.getModelList()
     if (this.isEdit) {
       this.tempObj = lodash.cloneDeep(this.assItem)
       this.model_id = this.tempObj.model_id
       this.unit = this.tempObj.unit
       this.name = this.tempObj.name
+      this.indeterminate = true
+      await this.getModelDetail(this.model_id)
     }
   },
   methods: {
+    getModelDetail(id) {
+      model_detail({ model_id: id })
+        .then(res => {
+          if (res.code !== ResponseStatus.success) return
+          if (res.data.sub_model_list && res.data.sub_model_list.length > 0) {
+            this.sub_model_ids = res.data.sub_model_list.map(item => {
+              return item.model_id
+            })
+          }
+        })
+        .catch(() => {
+          this.$message.error('查询详情失败')
+        })
+    },
     handleChange(value) {
-      console.log(`selected ${value}`)
       this.unit = value
     },
     handleSure() {
@@ -139,6 +154,7 @@ export default {
         })
       }
     },
+
     getModelList() {
       let params = {
         page_num: 1,
@@ -147,7 +163,11 @@ export default {
       this.plainOptions = []
       model_list(params).then(res => {
         if (res.code !== ResponseStatus.success) return
-        this.plainOptions = res.data.list.map(item => {
+
+        this.plainOptions = res.data.list.filter(item => {
+          return item.status === 0 && item.file_type !== 'asm' && item.file_type !== 'dwg' && item.file_type !== '3dtiles'
+        })
+        this.plainOptions = this.plainOptions.map(item => {
           return {
             label: item.name,
             value: item.model_id,

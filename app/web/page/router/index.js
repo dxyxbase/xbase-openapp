@@ -24,7 +24,7 @@ const router = new VueRouter({
           path: '/model-list',
           name: 'modelList',
           meta: {
-            title: '模型列表'
+            title: '模型管理'
           },
           component: () => import('@/page/view/ModelView/list.vue')
         }
@@ -37,16 +37,24 @@ const router = new VueRouter({
       meta: {
         title: '资产管理'
       },
-      redirect: '/asset-list',
+      redirect: '/gis-asset-list',
       component: () => import('@/page/view/AssetView/index.vue'),
       children: [
         {
-          path: '/asset-list',
+          path: '/gis-asset-list',
           name: 'assetList',
           meta: {
-            title: '资产列表'
+            title: 'GIS资产'
           },
           component: () => import('@/page/view/AssetView/list.vue')
+        },
+        {
+          path: '/bim-asset-list',
+          name: 'assetList',
+          meta: {
+            title: 'BIM资产'
+          },
+          component: () => import('@/page/view/AssetView/BIMList.vue')
         }
       ]
     },
@@ -63,7 +71,7 @@ const router = new VueRouter({
           path: '/scene-list',
           name: 'sceneList',
           meta: {
-            title: '场景列表'
+            title: '场景管理'
           },
           component: () => import('@/page/view/SceneView/list.vue')
         },
@@ -76,6 +84,197 @@ const router = new VueRouter({
             activeMenu: '/scene-list'
           },
           component: () => import('@/page/view/SceneView/sceneEditor')
+        }
+      ]
+    },
+    // 碰撞检查
+    {
+      path: '/clashView',
+      name: 'clashView',
+      meta: {
+        title: '碰撞检查'
+      },
+      redirect: '/clash-list',
+      component: () => import('@/page/view/CrashView/index.vue'),
+      children: [
+        {
+          path: '/clash-list',
+          name: 'clashList',
+          meta: {
+            title: '碰撞检查'
+          },
+          component: () => import('@/page/view/CrashView/list.vue')
+        }
+      ]
+    },
+    // 高级搜索
+    {
+      path: '/dataSearch',
+      name: 'dataSearch',
+      meta: {
+        title: '数据高级管理'
+      },
+      redirect: '/dataSearch-list',
+      component: () => import('@/page/view/DataSearch/index.vue'),
+      children: [
+        {
+          path: '/dataSearch-list',
+          name: 'dataSearchList',
+          meta: {
+            title: '数据高级管理',
+            keepAlive: true
+          },
+          component: () => import('@/page/view/DataSearch/list.vue')
+        }
+      ]
+    },
+    // 数据标准化
+    {
+      path: '/data-standard',
+      name: 'dataStandard',
+      meta: {
+        title: '数据标准化'
+      },
+      component: () => import('@/page/view/DataServer/index.vue'),
+      children: [
+        {
+          path: 'manage',
+          name: 'DataStandardManage',
+          meta: {
+            title: '数据标准管理'
+          },
+          component: () => import('@/page/view/DataServer/DataStandardManage/index.vue'),
+          children: [
+            {
+              path: 'model-class',
+              name: 'DataStandardManageModelClass',
+              meta: {
+                title: '模型分类标准'
+              },
+              component: () => import('@/page/view/DataServer/DataStandardManage/ModelClass/index.vue')
+            },
+            {
+              path: 'model-class/:name/:standard_id/:version_id',
+              name: 'DataStandardManageModelClassInfo',
+              hidden: true,
+              meta: {
+                title: '模型分类标准详情',
+                activeMenu: '/data-standard/manage/model-class'
+              },
+              component: () => import('@/page/view/DataServer/DataStandardManage/ModelClass/modelInfo.vue')
+            },
+            {
+              path: 'attr-info',
+              name: 'DataStandardManageAttrInfo',
+              meta: {
+                title: '属性信息标准'
+              },
+              component: () => import('@/page/view/DataServer/DataStandardManage/AttrInfo/index.vue')
+            },
+            {
+              path: 'attr-class/:name/:standard_id',
+              name: 'DataStandardManageAttrClassInfo',
+              hidden: true,
+              meta: {
+                title: '属性详情',
+                activeMenu: '/data-standard/manage/attr-info'
+              },
+              component: () => import('@/page/view/DataServer/DataStandardManage/AttrInfo/attrInfo.vue')
+            }
+          ]
+        },
+        {
+          path: 'map-rules',
+          name: 'MappingRulesManage',
+          meta: {
+            title: '映射规则管理'
+          },
+          component: () => import('@/page/view/DataServer/MappingRulesManage/index.vue'),
+          children: [
+            {
+              path: 'standard-rule',
+              name: 'MappingRulesManageStandardRule',
+              meta: {
+                title: '标准映射规则'
+              },
+              component: () => import('@/page/view/DataServer/MappingRulesManage/StandardRule/index.vue')
+            },
+            {
+              path: 'component-rule',
+              name: 'MappingRulesManageMembertRule',
+              meta: {
+                title: '构件映射规则'
+              },
+              component: () => import('@/page/view/DataServer/MappingRulesManage/MembertRule/index.vue')
+            }
+          ]
+        },
+        {
+          path: 'map-manage',
+          name: 'StandardMapManage',
+          meta: {
+            title: '标准映射管理'
+          },
+          component: () => import('@/page/view/DataServer/StandardMapManage/index.vue'),
+          children: [
+            {
+              path: 'index',
+              name: 'StandardMapManageList',
+              meta: {
+                title: '标准映射管理'
+              },
+              component: () => import('@/page/view/DataServer/StandardMapManage/list.vue')
+            },
+            {
+              path: 'handle',
+              name: 'StandardMapManageHandle',
+              meta: {
+                title: '手动映射',
+                activeMenu: '/data-standard/map-manage/index'
+              },
+              hidden: true,
+              component: () => import('@/page/view/DataServer/StandardMapManage/handleMap.vue')
+            }
+          ]
+        },
+
+        {
+          path: 'standard-model',
+          name: 'DataModel',
+          meta: {
+            title: '模型标准化'
+          },
+          component: () => import('@/page/view/DataServer/DataModelList/index.vue'),
+          children: [
+            {
+              path: 'index',
+              name: 'DataModelList',
+              meta: {
+                title: '模型标准化'
+              },
+              component: () => import('@/page/view/DataServer/DataModelList/list.vue')
+            },
+            {
+              path: 'member',
+              name: 'DataModelMember',
+              hidden: true,
+              meta: {
+                title: '构件分类',
+                activeMenu: '/data-standard/standard-model/index'
+              },
+              component: () => import('@/page/view/DataServer/DataModelList/member.vue')
+            },
+            {
+              path: 'member-item',
+              name: 'DataModelMemberItem',
+              hidden: true,
+              meta: {
+                title: '构件',
+                activeMenu: '/data-standard/standard-model/index'
+              },
+              component: () => import('@/page/view/DataServer/DataModelList/memberItem.vue')
+            }
+          ]
         }
       ]
     },

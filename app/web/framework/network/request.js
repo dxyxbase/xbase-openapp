@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 11:10:37
- * @LastEditTime: 2023-06-29 11:28:18
+ * @LastEditTime: 2023-08-21 14:00:16
  * @FilePath: /openapi-demoapp/app/web/framework/network/request.js
  * @Description:
  */
@@ -10,6 +10,7 @@ import { VueAxios } from './axios'
 import storage from 'store'
 import { SET_TOKEN } from '@/page/store/mutation-type'
 import router from '@/page/router'
+import qs from 'qs'
 const whiteList = ['/api/open/v1/model/upload', '/api/open/v1/asset/upload']
 const request = axios.create({
   withCredentials: true,
@@ -17,7 +18,7 @@ const request = axios.create({
   xsrfCookieName: 'csrfToken'
 })
 // 通用错误代码
-const authCommonErrorCode = [10001000, 10001001, 10001002, 10001003, 10001004, 10001005, 10001006, 10001007, 10001008]
+const authCommonErrorCode = [10001000, 10001001, 10001002, 10001003, 10001004, 10001005, 10001006, 10001007, 10001008, 401]
 // 异常拦截处理器
 const errorHandler = error => {
   if (error.response) {
@@ -39,16 +40,22 @@ const errorHandler = error => {
 
 request.interceptors.request.use(config => {
   const url_ = config.url
-  whiteList.includes(url_) ? (config.timeout = 1000 * 10 * 60) : (config.timeout = 10000)
+  whiteList.includes(url_) ? (config.timeout = 1000 * 10 * 60) : (config.timeout = 20000)
   const token = storage.get(SET_TOKEN)
   if (!config.headers['Authorization']) {
-    config.headers['Authorization'] = 'Bear ' + token
+    config.headers['Authorization'] = 'Bearer ' + token
   }
   if (config.method === 'get') {
     config.params = {
       ...config.params,
       _t: Date.parse(new Date()) / 1000
     }
+    config.paramsSerializer = function (params) {
+      return qs.stringify(params, { arrayFormat: 'indices' })
+    }
+    // config.paramsSerializer = function (params) {
+    //   return qs.stringify(params, { arrayFormat: 'brackets' })
+    // }
   }
   return config
 }, errorHandler)

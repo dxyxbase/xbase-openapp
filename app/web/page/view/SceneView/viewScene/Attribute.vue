@@ -1,5 +1,5 @@
 <template>
-  <div :isRem="true" :resizeLimitClass="resizeLimitClass" class="attributePop" :style="attributePosition" :dragLimitClass="dragLimitClass" handleDragClass="attribute-top">
+  <div :isRem="true" v-resizeable :resizeLimitClass="resizeLimitClass" class="attributePop" v-drag :style="attributePosition" :dragLimitClass="dragLimitClass" handleDragClass="attribute-top">
     <div class="attribute-top">
       <span>属性</span>
       <span class="close" @click="handleClose">×</span>
@@ -36,8 +36,7 @@
         </div>
       </div>
     </div>
-    <div class="dragIcon">
-    </div>
+    <div class="dragIcon"></div>
   </div>
 </template>
 

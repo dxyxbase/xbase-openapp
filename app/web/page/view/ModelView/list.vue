@@ -51,11 +51,16 @@
               <span>编辑装配</span>
             </a-button>
             <a-button v-show="record.status * 1 === 1 || record.status * 1 === 4" key="stop" type="link" class="actionBtn" @click="cancelTranslation(record)">
-              <span>中止转换</span>
+              <span>终止转换</span>
             </a-button>
-            <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePre(record)">
-              <span>预览</span>
-            </a-button>
+
+            <a-tooltip>
+              <template slot="title">模型预览之前请先确认此应用已具有对应的渲染服务权限，否则可能会出现token无效，无法预览的情况！</template>
+              <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePre(record)">
+                <span>预览</span>
+              </a-button>
+            </a-tooltip>
+
             <a-button type="link" class="actionBtn" @click="handleDetail(record, 'detail')">
               <span>详情</span>
             </a-button>
@@ -84,7 +89,7 @@
                 <a-menu-item>
                   <a href="javascript:;" @click="getTree(record)">模型构件树</a>
                 </a-menu-item>
-                <a-menu-item>
+                <a-menu-item v-if="record.status !== 1 && record.status !== 4">
                   <a href="javascript:;" :class="{ notAllowed: record.review_status }" @click="handleDeletePatch('single', record)">删除</a>
                 </a-menu-item>
               </a-menu>
@@ -119,21 +124,20 @@
 import transfer from './components/transfer.vue'
 import viewModel from './viewModel/index.vue'
 import assembly from './components/assembly.vue'
-import { model_list, model_del, model_translation, model_detail, model_cancel_translation, model_transform_detail, model_down, model_status, model_attr } from '@/apis/model.js'
+import { model_list, model_del, model_translation, model_detail, model_cancel_translation, model_transform_detail, model_attr } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import detail from './components/detail.vue'
 import queryAttr from './components/queryAttr.vue'
 import queryModel from './components/queryModel.vue'
 import uploadTus from '@/component/Public/upload_tus.vue'
-
-const axios = require('axios')
+import { fileModel } from '@/utils/setting.js'
 export default {
   components: { viewModel, transfer, detail, queryAttr, queryModel, assembly, uploadTus },
   data() {
     const rowSelection = {
       getCheckboxProps: record => ({
         props: {
-          disabled: record.review_status
+          disabled: record.status === 1 || record.status === 4
         }
       })
     }
@@ -251,7 +255,7 @@ export default {
     async downLoad(item) {
       const tempLink = document.createElement('a')
       tempLink.style.display = 'none'
-      tempLink.href = `/api/open/v1/model/download?model_id=${item.model_id}`
+      tempLink.href = `/router/model/download?model_id=${item.model_id}`
       if (typeof tempLink.download === 'undefined') {
         tempLink.setAttribute('target', '_blank')
       }
@@ -264,18 +268,16 @@ export default {
       model_cancel_translation({ model_id: item.model_id })
         .then(res => {
           if (res.code !== ResponseStatus.success) return
-          this.$message.success('中止转换成功')
+          this.$message.success('终止转换成功')
           this.getModelList()
         })
         .catch(() => {
-          this.$message.error('中止失败')
+          this.$message.error('终止失败')
         })
     },
     transfer(text, flag) {
       this.tempItem = text
-      // 目前只有rvt、ifc可以显示转换弹窗，其余直接调用转换接口
-      const fileType = ['rvt', 'ifc', 'nwd', 'nwc', 'skp', 'fbx', 'obj', 'stl', 'glb', 'gltf']
-      if (fileType.indexOf(this.tempItem.file_type) >= 0) {
+      if (fileModel.indexOf(this.tempItem.file_type) !== -1) {
         this.visibleTransfer = true
       } else {
         this.$message.warning('格式出错')
@@ -340,7 +342,7 @@ export default {
             }
           })
         },
-        onCancel() {
+        onCancel: () => {
           that.isPatch = true
           that.selectedRowKeys = []
         }
@@ -355,6 +357,11 @@ export default {
         if (res.code !== ResponseStatus.success) return
         this.lists = res.data.list
         this.total = res.data.total
+
+        if (this.searchForm.page_num !== 1 && res.data.list.length === 0) {
+          this.searchForm.page_num = 1
+          this.getModelList()
+        }
       })
     },
     // 表格选择发生变化
@@ -391,7 +398,6 @@ export default {
           })
       } else if (msg === 'transformdetail') {
         this.title = `${modelInfo.name}转换详情`
-        console.log('查询详情', modelInfo)
         model_transform_detail({ model_id: modelInfo.model_id })
           .then(res => {
             if (res.code !== ResponseStatus.success) return
@@ -403,11 +409,11 @@ export default {
           })
       } else if (msg === 'status') {
         this.title = `${modelInfo.name}状态`
-        model_status({ path: modelInfo.render_path }).then(res => {
-          if (res.code !== ResponseStatus.success) return
-          this.detailTemp = res.data
-          this.visibleDetail = true
-        })
+        // model_status({ path: modelInfo.render_path }).then(res => {
+        //   if (res.code !== ResponseStatus.success) return
+        //   this.detailTemp = res.data
+        //   this.visibleDetail = true
+        // })
       } else if (msg === 'attr') {
         this.title = `${modelInfo.name}属性`
         let query = { path: modelInfo.render_path, page_num: 1, page_size: 20 }
@@ -436,7 +442,7 @@ export default {
           scopedSlots: { customRender: 'name' }
         },
         {
-          title: '文件格式',
+          title: '文件扩展名',
           dataIndex: 'file_type',
           key: 'file_type',
           width: '140px'
@@ -458,12 +464,6 @@ export default {
           scopedSlots: { customRender: 'status' },
           ellipsis: true
         },
-        // {
-        //   title: '创建时间',
-        //   dataIndex: 'update_time',
-        //   key: 'update_time',
-        //   width: '140px'
-        // },
         {
           title: '操作',
           key: 'action',

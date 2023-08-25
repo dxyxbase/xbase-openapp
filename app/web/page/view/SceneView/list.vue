@@ -101,7 +101,7 @@
         </div>
         <div>
           <span>创建时间（created_time） ：</span>
-          <span>{{ details.created_time }}</span>
+          <span>{{ details.create_time }}</span>
         </div>
       </div>
     </a-modal>
@@ -138,9 +138,9 @@ export default {
       details: {},
       visibleRename: false,
       visibleAdd: false,
-      //  0转换成功 1转换中 2转换等待中 -2转换失败 -3 上传成功 -4转换失败(转换中止)
+      //  0转换成功 1转换中 2转换等待中 -2转换失败 -3 上传成功 -4转换失败(转换终止)
       statuObj: {
-        '-4': '转换失败(转换中止)',
+        '-4': '转换失败(转换终止)',
         '-3': '上传成功',
         '-2': '转换失败',
         0: '转换成功',
@@ -191,7 +191,6 @@ export default {
   },
   methods: {
     handleEdit(item) {
-      console.log(item, '编辑地址')
       // this.senceInfo = { id: scene_id }
       this.$router.push({
         path: '/scene-edit',
@@ -246,6 +245,10 @@ export default {
         if (res.code !== ResponseStatus.success) return
         this.lists = res.data.list
         this.total = res.data.total
+        if (this.searchForm.page_num !== 1 && res.data.list.length === 0) {
+          this.searchForm.page_num = 1
+          this.getSenceList()
+        }
       })
     },
     // 表格选择发生变化
@@ -260,7 +263,6 @@ export default {
     },
     handleDetail(item) {
       sence_detail(item.scene_id).then(res => {
-        console.log(res)
         if (res.code !== ResponseStatus.success) return this.$message.error('场景详情查询失败')
         this.details = res.data
         this.visibleDetail = true
@@ -307,7 +309,7 @@ export default {
             }
           })
         },
-        onCancel() {
+        onCancel: () => {
           that.selectedRowKeys = []
         }
       })
@@ -323,8 +325,8 @@ export default {
   },
   mounted() {
     this.getSenceList()
-    this.$bus.off('upData')
-    this.$bus.on('upData', () => {
+    this.$bus.off('upData/sence')
+    this.$bus.on('upData/sence', () => {
       this.getSenceList()
       this.visibleAdd = false
     })
@@ -359,8 +361,8 @@ export default {
 
         {
           title: '创建时间',
-          dataIndex: 'created_time',
-          key: 'created_time',
+          dataIndex: 'create_time',
+          key: 'create_time',
           width: '240px'
         },
         {
@@ -379,6 +381,7 @@ export default {
 .asset-box {
   width: 100%;
   height: 100%;
+  overflow: auto;
 }
 .asset-box {
   width: 100%;
@@ -395,7 +398,7 @@ export default {
     margin-top: 12px;
     display: flex;
     flex-direction: column;
-    min-height: 100% !important;
+    // min-height: 100% !important;
     .noData {
       width: 240px;
       margin: 0 auto;
