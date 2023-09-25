@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-07 21:19:27
- * @LastEditTime: 2023-08-25 13:16:23
+ * @LastEditTime: 2023-09-19 15:28:25
  * @FilePath: /openapi-demoapp/app/controller/openApi.js
  * @Description:
  */
@@ -78,7 +78,9 @@ module.exports = class openApiController extends Controller {
   }
   // 模型上传
   async model_upload(ctx) {
-    this.ctx.body = await ctx.service.model.upload_one(ctx.request.files[0], { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.model.upload_one(ctx.request.files[0], {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 模型分片上传
   // async model_upload_tus(ctx) {
@@ -94,7 +96,9 @@ module.exports = class openApiController extends Controller {
   }
   // 终止转换模型
   async model_cancel_translation(ctx) {
-    this.ctx.body = await ctx.service.model.cancel_translation(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.model.cancel_translation(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 模型详情
   async model_detail(ctx) {
@@ -102,7 +106,9 @@ module.exports = class openApiController extends Controller {
   }
   // 模型详情
   async model_transform_detail(ctx) {
-    this.ctx.body = await ctx.service.model.transform_detail(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.model.transform_detail(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 模型下载
   async model_down(ctx) {
@@ -117,7 +123,7 @@ module.exports = class openApiController extends Controller {
     ctx.body = result.res
   }
   // 模型预览
-  async model_view_token(ctx) {
+  async view_token(ctx) {
     this.ctx.body = await ctx.service.model.view_token(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
   // 模型属性
@@ -150,11 +156,17 @@ module.exports = class openApiController extends Controller {
   }
   // 资产上传
   async asset_upload(ctx) {
-    this.ctx.body = await ctx.service.asset.upload_one(ctx.request.files[0], { Authorization: ctx.cookies.get('token') }, ctx.request.body)
+    this.ctx.body = await ctx.service.asset.upload_one(
+      ctx.request.files[0],
+      { Authorization: ctx.cookies.get('token') },
+      ctx.request.body
+    )
   }
   //新建资产
   async asset_upload_tus(ctx) {
-    this.ctx.body = await ctx.service.asset.upload_one_tus(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.asset.upload_one_tus(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 资产批量删除
   async asset_del(ctx) {
@@ -170,7 +182,9 @@ module.exports = class openApiController extends Controller {
   }
   // 资产终止转换
   async asset_translation_cancel(ctx) {
-    this.ctx.body = await ctx.service.asset.translation_cancel(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.asset.translation_cancel(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 场景列表
   async scene_list(ctx) {
@@ -200,7 +214,9 @@ module.exports = class openApiController extends Controller {
 
   // 根据关键词联想搜索地址
   async searchLocation(ctx) {
-    this.ctx.body = await ctx.service.scene.searchLocation(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.searchLocation(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   async scene_load_list(ctx) {
     this.ctx.body = await ctx.service.scene.load_list({ Authorization: ctx.cookies.get('token') })
@@ -238,41 +254,138 @@ module.exports = class openApiController extends Controller {
   }
   // 资产id查询属性
   async query_uid_byAsset(ctx) {
-    this.ctx.body = await ctx.service.scene.query_uid_byAsset(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.query_uid_byAsset(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 资产装配
   async asset_assembly(ctx) {
-    this.ctx.body = await ctx.service.asset.asset_assembly(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.asset.asset_assembly(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 查询装配资产关联资产
   async getAsset_by_asm(ctx) {
-    this.ctx.body = await ctx.service.asset.getAsset_by_asm(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.asset.getAsset_by_asm(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   // 查询资产关联的装配
   async getAsm_by_asset(ctx) {
-    this.ctx.body = await ctx.service.asset.getAsm_by_asset(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.asset.getAsm_by_asset(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
 
   async getCimCategory(ctx) {
-    this.ctx.body = await ctx.service.scene.getCimCategory(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.getCimCategory(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
 
   async updateSemantic(ctx) {
-    this.ctx.body = await ctx.service.scene.updateSemantic(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.updateSemantic(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
   async saveSemantic(ctx) {
     this.ctx.body = await ctx.service.scene.saveSemantic(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
 
   async getElementSemanticProperty(ctx) {
-    this.ctx.body = await ctx.service.scene.getElementSemanticProperty(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.getElementSemanticProperty(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
 
   async deleteSemantic(ctx) {
-    this.ctx.body = await ctx.service.scene.deleteSemantic(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.deleteSemantic(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
 
   async getCimNodeSemantic(ctx) {
-    this.ctx.body = await ctx.service.scene.getCimNodeSemantic(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+    this.ctx.body = await ctx.service.scene.getCimNodeSemantic(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  // 构件
+  async model_components_list(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_list(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_detail(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_detail(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_save(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_save(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_transfer_start(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_transfer_start(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_transfer_cancel(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_transfer_cancel(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_info(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_info(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async model_components_del(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_del(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  // 模型上传
+  async model_components_upload(ctx) {
+    this.ctx.body = await ctx.service.modelComponents.model_components_upload(ctx.request.files[0], {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+
+  // 语义模型列表
+  async semantic_model_list(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_list(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_add(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_add(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_transfrom(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_transfrom(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_transfromCancel(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_transfromCancel(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_info(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_info(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_infoTrans(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_infoTrans(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+  async semantic_model_del(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_del(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
   }
 }

@@ -1,6 +1,16 @@
 <template>
-  <a-modal title="转换格式" :visible="visible" :destroyOnClose="true" :footer="null" centered class="pop-ui" width="30rem" :maskClosable="false" @cancel="handleClick('cancel')">
-    <div class="item" v-if="isrvt">
+  <a-modal
+    title="转换格式"
+    :visible="visible"
+    :destroyOnClose="true"
+    :footer="null"
+    centered
+    class="pop-ui"
+    width="30rem"
+    :maskClosable="false"
+    @cancel="handleClick('cancel')"
+  >
+    <div class="item" v-if="isrvt || tempItem.file_type === 'dgn'">
       <span class="l">导出房间：</span>
       <a-radio-group v-model="export_room" class="radioGroup">
         <a-radio :value="1" style="margin-right: 20px">是</a-radio>
@@ -14,13 +24,13 @@
         <a-radio :value="2">否</a-radio>
       </a-radio-group>
     </div>
-    <div class="item" v-if="isifcrvt">
+    <!-- <div class="item" v-if="isifcrvt">
       <span class="l">转换语义数据：</span>
       <a-radio-group v-model="export_bim_data" class="radioGroup">
         <a-radio :value="1" style="margin-right: 20px">是</a-radio>
         <a-radio :value="2">否</a-radio>
       </a-radio-group>
-    </div>
+    </div> -->
     <div class="item" v-if="isrvt">
       <span class="l">精细等级：</span>
       <a-checkbox-group v-model="hierarchy" :default-value="['space']">
@@ -31,7 +41,7 @@
         </span>
       </a-checkbox-group>
     </div>
-    <div class="item slider-box" v-if="isrvt">
+    <div class="item slider-box" v-if="isrvt || tempItem.file_type === 'dgn'">
       <span class="l">精细度</span>
       <a-slider v-model="detail_level" :default-value="7" :marks="marks" :min="1" :max="14" class="radioGroup1" />
     </div>
@@ -58,7 +68,15 @@
     </div>
     <div class="btn-box" style="margin-top: 24px">
       <a-button class="cancel-btn" @click="handleClick('cancel')">取消</a-button>
-      <a-button class="comfirm-btn" style="min-width: 92px !important; width: auto !important" type="primary" :disabled="disabled" @click="handleClick('sure')">发起转换</a-button>
+      <a-button
+        class="comfirm-btn"
+        style="min-width: 92px !important; width: auto !important"
+        type="primary"
+        :disabled="disabled"
+        @click="handleClick('sure')"
+      >
+        发起转换
+      </a-button>
     </div>
   </a-modal>
 </template>
@@ -107,13 +125,14 @@ export default {
       return checkedNum === 2 && this.hierarchy.indexOf(value) === -1
     },
     handleClick(flag) {
-      if (this.hierarchy.length === 0 && this.isrvt) return this.$message.warning('rvt格式导出瓦片数据的精细等级最少选择一个')
+      if (this.hierarchy.length === 0 && this.isrvt)
+        return this.$message.warning('rvt格式导出瓦片数据的精细等级最少选择一个')
       if (flag === 'sure') {
         const params = {
           model_id: this.tempItem.model_id,
           export_room: this.export_room === 1,
-          export_material: this.export_room === 1,
-          export_bim_data: this.export_bim_data === 1,
+          export_material: this.export_material === 1,
+          // export_bim_data: this.export_bim_data === 1,
           export_hidden_elements: this.export_hidden_elements === 1,
           export_model_space: this.export_model_space === 1,
           detail_level: this.detail_level,

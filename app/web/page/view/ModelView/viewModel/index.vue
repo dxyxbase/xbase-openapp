@@ -1,8 +1,21 @@
 <template>
   <div class="viewModel">
-    <a-modal wrapClassName="previewModal" centered :destroyOnClose="true" :title="fileName" :visible="visible" :footer="null" :maskClosable="false" :keyboard="false" :width="'calc(100% - 48px)'" :height="'calc(100% - 48px)'" class="pop-ui" @cancel="handleCancel">
+    <a-modal
+      wrapClassName="previewModal"
+      centered
+      :destroyOnClose="true"
+      :title="fileName"
+      :visible="visible"
+      :footer="null"
+      :maskClosable="false"
+      :keyboard="false"
+      :width="'calc(100% - 48px)'"
+      :height="'calc(100% - 48px)'"
+      class="pop-ui"
+      @cancel="handleCancel"
+    >
       <div class="view-box">
-        <div class="top-change">
+        <div class="top-change" v-if="!isHidden">
           <a-row type="flex" justify="space-between" align="top">
             <a-col :span="6">
               <div class="left-opr">
@@ -22,7 +35,16 @@
         </div>
         <div class="contenter">
           <div id="contenter_map" ref="contenter_map"></div>
-          <a-drawer width="22rem" title="视点列表" placement="right" :closable="false" :visible="drawVisible" :get-container="false" :wrap-style="{ position: 'absolute' }" @close="drawVisible = false">
+          <a-drawer
+            width="22rem"
+            title="视点列表"
+            placement="right"
+            :closable="false"
+            :visible="drawVisible"
+            :get-container="false"
+            :wrap-style="{ position: 'absolute' }"
+            @close="drawVisible = false"
+          >
             <div class="drawBox">
               <div class="drawHeader"><a-button type="primary" @click="addPort">新增</a-button></div>
               <div class="drawContent">
@@ -39,7 +61,13 @@
                         <template slot="description">{{ item.desc }}</template>
                       </a-card-meta>
                       <div class="ant-card-actions">
-                        <a-popconfirm title="确定删除此视点吗？" ok-text="确定" cancel-text="取消" @confirm="confirm(item)" @cancel="cancel">
+                        <a-popconfirm
+                          title="确定删除此视点吗？"
+                          ok-text="确定"
+                          cancel-text="取消"
+                          @confirm="confirm(item)"
+                          @cancel="cancel"
+                        >
                           <a-icon type="delete" />
                         </a-popconfirm>
                         <a-icon type="file-text" @click="viewImg(item)" />
@@ -50,7 +78,17 @@
                 </div>
               </div>
               <div class="pagination">
-                <a-pagination size="small" hideOnSinglePage show-quick-jumper show-size-changer :current="page_num" :total="total" :pageSize="page_size" @change="handlePaging" @showSizeChange="changePageSize" />
+                <a-pagination
+                  size="small"
+                  hideOnSinglePage
+                  show-quick-jumper
+                  show-size-changer
+                  :current="page_num"
+                  :total="total"
+                  :pageSize="page_size"
+                  @change="handlePaging"
+                  @showSizeChange="changePageSize"
+                />
               </div>
             </div>
           </a-drawer>
@@ -58,12 +96,40 @@
       </div>
     </a-modal>
     <div class="createDialog">
-      <a-modal v-model="visiblePort" centered title="创建视点" width="30rem" class="createDialog" :keyboard="false" :destroyOnClose="true" :maskClosable="false" :okButtonProps="{ props: { disabled: loading } }" @cancel="handleCancelPort" @ok="handleOk">
+      <a-modal
+        v-model="visiblePort"
+        centered
+        title="创建视点"
+        width="30rem"
+        class="createDialog"
+        :keyboard="false"
+        :destroyOnClose="true"
+        :maskClosable="false"
+        :okButtonProps="{ props: { disabled: loading } }"
+        @cancel="handleCancelPort"
+        @ok="handleOk"
+      >
         <!-- :confirmLoading="loading" -->
         <div class="viewport">
-          <a-form-model ref="ruleForm" :model="form" :rules="rules" :label-col="{ span: 5 }" :wrapper-col="{ span: 19 }" labelAlign="left">
+          <a-form-model
+            ref="ruleForm"
+            :model="form"
+            :rules="rules"
+            :label-col="{ span: 5 }"
+            :wrapper-col="{ span: 19 }"
+            labelAlign="left"
+          >
             <a-form-model-item label="视点描述" :colon="false" prop="desc">
-              <a-input ref="descRef" v-model="form.desc" :maxLength="200" type="textarea" placeholder="请输入备注" class="textarea" :disabled="loading" @change="onChange" />
+              <a-input
+                ref="descRef"
+                v-model="form.desc"
+                :maxLength="200"
+                type="textarea"
+                placeholder="请输入备注"
+                class="textarea"
+                :disabled="loading"
+                @change="onChange"
+              />
             </a-form-model-item>
             <img v-show="thumbnail" class="pointImg" :src="thumbnail" alt="err" />
             <div v-show="!thumbnail" class="pointImg loading-wrp">
@@ -79,7 +145,18 @@
         </div>
       </a-modal>
     </div>
-    <a-modal v-model="viewPreDetail" centered title="视点详情" width="30rem" :footer="null" class="createDialog" :keyboard="false" :destroyOnClose="true" :maskClosable="false" @cancel="viewPreDetail = false">
+    <a-modal
+      v-model="viewPreDetail"
+      centered
+      title="视点详情"
+      width="30rem"
+      :footer="null"
+      class="createDialog"
+      :keyboard="false"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      @cancel="viewPreDetail = false"
+    >
       <pre>
     {{ activeItem }}
    </pre
@@ -88,7 +165,7 @@
   </div>
 </template>
 <script>
-import { model_view_token } from '@/apis/model.js'
+import { view_token } from '@/apis/model.js'
 import { port_add, port_list, port_del, scene_detail } from '@/apis/port.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import { viewerToken } from '@/utils/setting.js'
@@ -129,6 +206,7 @@ export default {
       // ,WEBGL,SME
       engine: 'BME',
       app: null,
+      isHidden: false,
       // TWOD    ,WEBGL,SME,    HYBRID,CESUIM
       engineList: [
         {
@@ -206,12 +284,16 @@ export default {
       this.$emit('handlePreviewModel', null, false)
       if (this.app) {
         this.app.destroy()
+        this.app = null
+        this.viewer = null
       }
     },
     changeEngine(e) {
       this.engine = e.target.value
       if (this.app) {
         this.app.destroy()
+        this.app = null
+        this.viewer = null
       }
       this.init()
     },
@@ -272,7 +354,7 @@ export default {
     // 获取viewer_token
     async getViewerToken() {
       // model（模型）、component（构件）、asset（资产）、scene（场景）
-      const result = await model_view_token({ file_id: this.fileId, viewer_type: 'model' })
+      const result = await view_token({ file_id: this.fileId, viewer_type: 'model' })
       if (result.code !== ResponseStatus.success) return this.$message.error('获取viewerToken失败')
       const {
         data: { token }
@@ -282,57 +364,37 @@ export default {
       }
     },
     async init() {
-      let options = new DX.DefaultConfigs()
+      await new Promise(resolve => {
+        setTimeout(() => {
+          resolve()
+        }, 300)
+      })
+      let options = new window.DX.DefaultConfigs()
       // 设置静态资源域的地址
       options.staticHost = window.DXYP.sdkServer.staticHost
       // 设置服务域的地址
       options.serverHost = window.DXYP.sdkServer.serverHost
       // 添加token
       options.accessToken = await this.getViewerToken()
-      // 渲染模式, 默认是webgl
       options.engine = this.engine === 'BME' ? DX.mode.WEBGL : DX.mode.SME
-      // 设置默认的toolbar功能
+      if (/dwg/i.test(this.fileType)) {
+        options.engine = window.DX.mode.TWOD
+        this.isHidden = true
+      }
       options.mainToolbar = []
       //创建app实例
-      window.app = this.app = new DX.Application('contenter_map')
+      window.app = this.app = new window.DX.GlobalViewer3D('contenter_map')
       //初始化应用
       this.app.init(options).then(async () => {
         // 获取viewer实例
-        this.viewer = app.getViewer()
-        // 加载模型
+        this.viewer = this.app.getViewer()
         // 上传模型之后拿到对应模型路径（1.通过上传接口的返回结果拿到对应path，2.通过模型管理界面上传之后更多中渲染路径获取）
         await this.app.mainWindow.openFile(this.renderPath)
-
         window.mapApp = this.app
         // this.viewer.enableFullScreen(true)
-        this.viewer.createCustomButton({
-          // 与options.mainToolbar中的值一致.
-          key: 'TOGGLE_MARKUP',
-          // 自定义按钮的文本信息
-          name: '操作',
-          // 设置自定义按钮点击后是否存在激活状态
-          hasActive: true,
-          // 鼠标移动到按钮上的文字提示
-          title: '批注',
-          // 自定义按扭的class属性
-          className: 'markBtn',
-          // 用于控制运行时创建按钮直接更新toolbar.
-          update: true,
-          // 按钮在toolbar列表中的索引值, 默认为toolbar列表中最后一个值.结合update参数才会生效
-          index: 0,
-          // 按钮点击事件的回调函数
-          handle: function () {
-            console.log('todo')
-          }
-        })
         // this.viewer.setLanguage(DX.lang.EN_US)
         // 切换简体版本
         this.viewer.setLanguage(DX.lang.ZH_CN)
-        // 切换繁体版本
-        // this.viewer.setLanguage(DX.lang.ZH_TW)
-
-        var items = this.viewer.getToolbarItems()
-        this.viewer.setToolbarItems(items.slice(0, 8))
         // 点击模型构件，选中构件后孤立
         // this.viewer.on(DX.Events.ENTITY_SELECTED, data => {
         //   if (data.selectionIds[0]) {
@@ -484,6 +546,7 @@ pre {
 .viewModel {
   min-width: 1366px;
   min-height: 768px;
+  position: absolute;
   .previewTop {
     height: 40px;
     background: #f8f8f8;

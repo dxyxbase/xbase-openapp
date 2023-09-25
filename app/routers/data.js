@@ -57,19 +57,19 @@ module.exports = app => {
   //属性编辑条目顺序
   router.post('/api/open/v1/standardization/property/children/move', controller.openApiData.attr_child_move)
   //构件映射规则列表
-  router.get('/api/open/v1/standardization/rule/component', controller.openApiData.rule_member_list)
+  router.get('/api/open/v1/standardization/rule/component', controller.openApiData.rule_model_components_list)
   //添加构件映射规则
-  router.post('/api/open/v1/standardization/rule/component', controller.openApiData.rule_member_add)
+  router.post('/api/open/v1/standardization/rule/component', controller.openApiData.rule_components_add)
   //编辑构件映射规则
-  router.post('/api/open/v1/standardization/rule/component/update', controller.openApiData.rule_member_edit)
+  router.post('/api/open/v1/standardization/rule/component/update', controller.openApiData.rule_components_edit)
   //删除构件映射规则
-  router.post('/api/open/v1/standardization/rule/component/delete', controller.openApiData.rule_member_del)
+  router.post('/api/open/v1/standardization/rule/component/delete', controller.openApiData.rule_model_components_del)
   //恢复构件映射规则
-  router.post('/api/open/v1/standardization/rule/component/reset', controller.openApiData.rule_member_reset)
+  router.post('/api/open/v1/standardization/rule/component/reset', controller.openApiData.rule_components_reset)
   //编辑构件映射规则执行顺序
-  router.post('/api/open/v1/standardization/rule/component/move', controller.openApiData.rule_member_move)
+  router.post('/api/open/v1/standardization/rule/component/move', controller.openApiData.rule_components_move)
   //校验是否存在构件映射规则
-  router.get('/api/open/v1/standardization/rule/component/check-exist', controller.openApiData.rule_member_check)
+  router.get('/api/open/v1/standardization/rule/component/check-exist', controller.openApiData.rule_components_check)
   //标准映射规则列表
   router.get('/api/open/v1/standardization/rule/standard', controller.openApiData.rule_standard_list)
   //添加标准映射规则

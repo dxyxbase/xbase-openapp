@@ -14,7 +14,7 @@
     </div>
     <div class="table-box">
       <div ref="tableBox">
-        <div v-if="lists.length === 0" class="noData" style="text-align: center">
+        <div v-if="!lists.length" class="noData" style="text-align: center">
           <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
           <p>暂无内容</p>
         </div>
@@ -115,7 +115,7 @@ export default {
       const {
         data: { components = [] }
       } = res
-      this.lists = components
+      this.lists = components || []
     }
   },
   destroyed() {

@@ -32,6 +32,25 @@ const router = new VueRouter({
     },
 
     {
+      path: '/component',
+      name: 'componentView',
+      meta: {
+        title: '构件管理'
+      },
+      redirect: '/component-list',
+      component: () => import('@/page/view/ComponentrManage/index.vue'),
+      children: [
+        {
+          path: '/component-list',
+          name: 'modelList',
+          meta: {
+            title: '构件管理'
+          },
+          component: () => import('@/page/view/ComponentrManage/list.vue')
+        }
+      ]
+    },
+    {
       path: '/assetView',
       name: 'assetView',
       meta: {
@@ -87,6 +106,25 @@ const router = new VueRouter({
         }
       ]
     },
+    {
+      path: '/SemanticModel',
+      name: 'SemanticModelView',
+      meta: {
+        title: '语义模型'
+      },
+      redirect: '/SemanticModel-list',
+      component: () => import('@/page/view/SemanticModel/index.vue'),
+      children: [
+        {
+          path: '/SemanticModel-list',
+          name: 'modelList',
+          meta: {
+            title: '语义模型'
+          },
+          component: () => import('@/page/view/SemanticModel/list.vue')
+        }
+      ]
+    },
     // 碰撞检查
     {
       path: '/clashView',
@@ -128,6 +166,29 @@ const router = new VueRouter({
         }
       ]
     },
+
+    // 模型对比
+    {
+      path: '/modelComparison',
+      name: 'modelComparison',
+      meta: {
+        title: '模型对比'
+      },
+      redirect: '/modelComparison-list',
+      component: () => import('@/page/view/modelComparison/index.vue'),
+      children: [
+        {
+          path: '/modelComparison-list',
+          name: 'modelComparisonList',
+          meta: {
+            title: '模型对比',
+            keepAlive: true
+          },
+          component: () => import('@/page/view/modelComparison/list.vue'),
+        }
+      ]
+    },
+
     // 数据标准化
     {
       path: '/data-standard',
@@ -278,6 +339,45 @@ const router = new VueRouter({
         }
       ]
     },
+    // 模型检查
+    // {
+    //   path: '/data-modelCheck',
+    //   name: 'modelCheck',
+    //   meta: {
+    //     title: '模型检查服务'
+    //   },
+    //   component: () => import('@/page/view/modelCheck/index.vue'),
+    //   children: [
+    //     {
+    //       path: 'edit',
+    //       name: 'editSnl',
+    //       meta: {
+    //         title: '规则编辑'
+    //       },
+    //       redirect: '/snl-list',
+    //       component: () => import('@/page/view/modelCheck/editSnl/index.vue'),
+    //       children: [
+    //         {
+    //           path: 'snl-list',
+    //           name: 'SnlList',
+    //           meta: {
+    //             title: '规则编辑'
+    //           },
+    //           component: () => import('@/page/view/modelCheck/editSnl/list.vue'),
+    //         },
+    //         {
+    //           path: '/new-snl',
+    //           name: '/editSnl',
+    //           hidden: true,
+    //           meta: {
+    //             title: '规则编辑'
+    //           },
+    //           component: () => import('@/page/view/modelCheck/editSnl/components/editSnl.vue'),
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // },
     {
       path: '/login',
       name: 'login',

@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 15:28:41
- * @LastEditTime: 2023-08-25 12:38:00
+ * @LastEditTime: 2023-09-19 15:38:06
  * @FilePath: /openapi-demoapp/app/service/model.js
  * @Description:j
  */
@@ -192,5 +192,68 @@ module.exports = class UserService extends egg.Service {
     await fs.unlinkSync(file.filepath)
     await fs.unlinkSync(toBase)
     return result.data
+  }
+
+  async semantic_model_list(query, header) {
+    const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/list`, {
+      params: query,
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+
+  async semantic_model_add(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/create`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+  async semantic_model_transfrom(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/translation`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+  async semantic_model_transfromCancel(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/translation/cancel`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+
+  async semantic_model_info(query, header) {
+    const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/info`, {
+      params: query,
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+  async semantic_model_infoTrans(query, header) {
+    const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/translation/info`, {
+      params: query,
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+
+  async semantic_model_del(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/delete`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
   }
 }

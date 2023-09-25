@@ -6,7 +6,7 @@
       :model="clashFormState"
       name="basic"
       :label-col="{ span: 8 }"
-      :wrapper-col="{ span: 16 }"
+      :wrapper-col="{ span: 10 }"
       autocomplete="off"
     >
       <a-form-item
@@ -23,7 +23,7 @@
           allow-clear
           tree-default-expand-all
           :treeData="treeData"
-          :replaceFields="{label: 'name', value: 'model_id'}"
+          :replaceFields="{label: 'name', value: 'semantic_model_id'}"
           tree-node-filter-prop="name"
           @select="onSelect"
         >
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { model_list } from '@/apis/model'
+import { semantic_model_list } from '@/apis/model'
 import Bus from '../bus.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 
@@ -55,8 +55,7 @@ export default {
       searchForm: {
         page_num: 1,
         page_size: 100,
-        status:"[0]",
-        has_bim_data: true
+        filter_status: 4,
       },
       treeData: [],
       modelList: []
@@ -70,7 +69,7 @@ export default {
       }
       const selected = extra.selectedNodes[0].data.props
       this.modelList = [{
-        model_id: selected.model_id,
+        model_id: selected.semantic_model_id,
         name: selected.name,
         render_path: selected.render_path,
         code: '0'
@@ -78,11 +77,9 @@ export default {
       Bus.$emit('handleList', this.modelList)
     },
     getModelList() {
-      model_list(this.searchForm).then(res => {
+      semantic_model_list(this.searchForm).then(res => {
         if (res.code !== ResponseStatus.success) return
-        res.data.list.forEach(model => {
-            this.treeData.push(model)
-        })
+        this.treeData = res.data.semantic_model_list
       })
     },
   },

@@ -15,7 +15,7 @@ module.exports = class DataService extends egg.Service {
     this.ctx = ctx
   }
   // 构件规则列表：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-list
-  async rule_member_list(query, header) {
+  async rule_model_components_list(query, header) {
     const data = await axios.get(`${baseConfig.url}/api/open/v1/standardization/rule/component`, {
       params: query,
       headers: {
@@ -25,7 +25,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 添加规则：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-create
-  async rule_member_add(body, header) {
+  async rule_components_add(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/standardization/rule/component`, body, {
       headers: {
         Authorization: header.Authorization
@@ -34,7 +34,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 编辑规则：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-update
-  async rule_member_edit(body, header) {
+  async rule_components_edit(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/standardization/rule/component/update`, body, {
       headers: {
         Authorization: header.Authorization
@@ -43,7 +43,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 删除规则：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-delete
-  async rule_member_del(body, header) {
+  async rule_model_components_del(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/standardization/rule/component/delete`, body, {
       headers: {
         Authorization: header.Authorization
@@ -52,7 +52,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 恢复默认规则：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-reset
-  async rule_member_reset(body, header) {
+  async rule_components_reset(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/standardization/rule/component/reset`, body, {
       headers: {
         Authorization: header.Authorization
@@ -61,7 +61,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 编辑规则执行顺序：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-move
-  async rule_member_move(body, header) {
+  async rule_components_move(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/standardization/rule/component/move`, body, {
       headers: {
         Authorization: header.Authorization
@@ -70,7 +70,7 @@ module.exports = class DataService extends egg.Service {
     return data.data
   }
   // 校验是否存在规则：https://xbase.daxiangyun.com/doc/api#/services/data-standardization/apidocs/component-rule/component-rule-check-exist
-  async rule_member_check(query, header) {
+  async rule_components_check(query, header) {
     const data = await axios.get(`${baseConfig.url}/api/open/v1/standardization/rule/component/check-exist`, {
       params: query,
       headers: {

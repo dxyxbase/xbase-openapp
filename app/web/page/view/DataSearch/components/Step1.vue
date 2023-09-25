@@ -6,7 +6,7 @@
       :model="clashFormState"
       name="basic"
       :label-col="{ span: 8 }"
-      :wrapper-col="{ span: 16 }"
+      :wrapper-col="{ span: 10 }"
       autocomplete="off"
     >
       <a-form-model-item
@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { model_list, model_detail } from '@/apis/model'
+import { semantic_model_list } from '@/apis/model'
 import { component_category, component_property } from '@/apis/search'
 
 import Bus from '../bus.js'
@@ -79,8 +79,7 @@ export default {
       searchForm: {
         page_num: 1,
         page_size: 100,
-        status: "[0]",
-        has_bim_data: true
+        filter_status: 4
       },
       treeData: [],
       modelList: [],
@@ -175,11 +174,9 @@ export default {
       this.searchValue = e.target.value.trim()
     },
     getModelList() {
-      model_list(this.searchForm).then(res => {
+      semantic_model_list(this.searchForm).then(res => {
         if (res.code !== ResponseStatus.success) return
-        res.data.list.forEach(model => {
-            this.treeData.push(model)
-        })
+        this.treeData = res.data.semantic_model_list
       })
     },
   },
@@ -189,7 +186,7 @@ export default {
 }
 </script>
 
-<style lang="less" scope>
+<style lang="less" scoped>
 .ant-form-item-control {
   width:360px;
 }

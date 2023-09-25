@@ -5,42 +5,42 @@
  * @Description:
  */
 import request from 'framework/network/request'
-export const rule_member_list = params => {
+export const rule_model_components_list = params => {
   return request({
     url: '/api/open/v1/standardization/rule/component',
     method: 'GET',
     params
   })
 }
-export const rule_member_add = data => {
+export const rule_components_add = data => {
   return request({
     url: '/api/open/v1/standardization/rule/component',
     data: data,
     method: 'POST'
   })
 }
-export const rule_member_edit = data => {
+export const rule_components_edit = data => {
   return request({
     url: '/api/open/v1/standardization/rule/component/update',
     data: data,
     method: 'POST'
   })
 }
-export const rule_member_del = data => {
+export const rule_model_components_del = data => {
   return request({
     url: '/api/open/v1/standardization/rule/component/delete',
     data: data,
     method: 'POST'
   })
 }
-export const rule_member_reset = data => {
+export const rule_components_reset = data => {
   return request({
     url: '/api/open/v1/standardization/rule/component/reset',
     data: data,
     method: 'POST'
   })
 }
-export const rule_member_move = data => {
+export const rule_components_move = data => {
   return request({
     url: '/api/open/v1/standardization/rule/component/move',
     data: data,
@@ -97,7 +97,7 @@ export const rule_standard_check = params => {
     params
   })
 }
-export const rule_member_check = params => {
+export const rule_components_check = params => {
   return request({
     url: '/api/open/v1/standardization/rule/component/check-exist',
     method: 'GET',

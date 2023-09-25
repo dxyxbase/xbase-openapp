@@ -99,6 +99,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+::v-deep .ant-table-thead > tr > th,
+::v-deep .ant-table-tbody > tr > td {
+  padding: 16px 12px !important;
+}
 ::v-deep .tdName {
   padding: 0 !important;
   font-size: 12px !important;
@@ -110,5 +114,8 @@ export default {
   .actionBtn {
     font-size: 12px !important;
   }
+}
+::v-deep .actionBtn.ant-btn.ant-btn-link {
+  padding-left: 0 !important;
 }
 </style>

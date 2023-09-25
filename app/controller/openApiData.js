@@ -1,7 +1,7 @@
 /**
  * @Date: 2023-07-11 11:33:54
- * @LastEditTime: 2023-07-20 14:51:10
- * @FilePath: /openapi-demoapp/app/controller/openApidata.js
+ * @LastEditTime: 2023-09-18 17:53:42
+ * @FilePath: /openapi-demoapp/app/controller/openApiData.js
  * @Description:
  */
 'use strict'
@@ -98,26 +98,26 @@ module.exports = class OpenApiDataController extends Controller {
     this.ctx.body = await ctx.service.data.attr_child_move(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
   // 构件映射规则
-  async rule_member_list(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_list(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+  async rule_model_components_list(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_model_components_list(ctx.request.query, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_add(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_add(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+  async rule_components_add(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_components_add(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_edit(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_edit(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+  async rule_components_edit(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_components_edit(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_del(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_del(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+  async rule_model_components_del(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_model_components_del(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_reset(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_reset(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+  async rule_components_reset(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_components_reset(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_move(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_move(ctx.request.body, { Authorization: ctx.cookies.get('token') })
+  async rule_components_move(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_components_move(ctx.request.body, { Authorization: ctx.cookies.get('token') })
   }
-  async rule_member_check(ctx) {
-    this.ctx.body = await ctx.service.rules.rule_member_check(ctx.request.query, { Authorization: ctx.cookies.get('token') })
+  async rule_components_check(ctx) {
+    this.ctx.body = await ctx.service.rules.rule_components_check(ctx.request.query, { Authorization: ctx.cookies.get('token') })
   }
   // 标准映射规则
   async rule_standard_list(ctx) {

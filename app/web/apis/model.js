@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 18:44:22
- * @LastEditTime: 2023-07-11 15:26:07
+ * @LastEditTime: 2023-09-19 15:36:59
  * @FilePath: /openapi-demoapp/app/web/apis/model.js
  * @Description:前端模型接口
  */
@@ -96,7 +96,7 @@ export const model_tree_query = params => {
     params
   })
 }
-export const model_view_token = data => {
+export const view_token = data => {
   return request({
     url: '/api/open/v1/viewer/token',
     method: 'POST',
@@ -121,6 +121,58 @@ export const model_assembly_edit = data => {
 export const model_upload_tus = data => {
   return request({
     url: '/api/open/v1/model/model',
+    method: 'POST',
+    data: data
+  })
+}
+
+// 语义模型列表
+export const semantic_model_list = params => {
+  return request({
+    url: '/api/open/v1/semantic-model/list',
+    method: 'GET',
+    params
+  })
+}
+
+export const semantic_model_add = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/create',
+    method: 'POST',
+    data: data
+  })
+}
+export const semantic_model_transfrom = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/translation',
+    method: 'POST',
+    data: data
+  })
+}
+export const semantic_model_transfromCancel = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/translation/cancel',
+    method: 'POST',
+    data: data
+  })
+}
+export const semantic_model_info = params => {
+  return request({
+    url: '/api/open/v1/semantic-model/info',
+    method: 'GET',
+    params
+  })
+}
+export const semantic_model_infoTrans = params => {
+  return request({
+    url: '/api/open/v1/semantic-model/translation/info',
+    method: 'GET',
+    params
+  })
+}
+export const semantic_model_del = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/delete',
     method: 'POST',
     data: data
   })

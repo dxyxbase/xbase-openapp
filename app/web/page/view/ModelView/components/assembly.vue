@@ -1,6 +1,14 @@
 <template>
   <div class="a">
-    <a-modal :visible="visible" :title="!isEdit ? '模型装配' : '编辑'" :maskClosable="false" destroyOnClose centered width="32.5rem" @cancel="handleCancel">
+    <a-modal
+      :visible="visible"
+      :title="!isEdit ? '模型装配' : '编辑'"
+      :maskClosable="false"
+      destroyOnClose
+      centered
+      width="32.5rem"
+      @cancel="handleCancel"
+    >
       <div :style="{ borderBottom: '1px solid #E9E9E9', paddingBottom: '10px' }">
         <a-checkbox :indeterminate="indeterminate" :checked="checkAll" @change="onCheckAllChange">全选</a-checkbox>
       </div>
@@ -13,7 +21,12 @@
           <div class="examinationInput">
             <span class="l">装配名称</span>
             <div class="input_box">
-              <a-input v-model.trim="name" class="input-box" placeholder="请输入装配模型名称" :disabled="isEdit"></a-input>
+              <a-input
+                v-model.trim="name"
+                class="input-box"
+                placeholder="请输入装配模型名称"
+                :disabled="isEdit"
+              ></a-input>
             </div>
           </div>
           <div class="examinationInput">
@@ -165,13 +178,16 @@ export default {
         if (res.code !== ResponseStatus.success) return
 
         this.plainOptions = res.data.list.filter(item => {
-          return item.status === 0 && item.file_type !== 'asm' && item.file_type !== 'dwg' && item.file_type !== '3dtiles'
+          return (
+            item.status === 0 && item.file_type !== 'asm' && item.file_type !== 'dwg' && item.file_type !== '3dtiles'
+          )
         })
         this.plainOptions = this.plainOptions.map(item => {
           return {
             label: item.name,
             value: item.model_id,
-            disabled: item.status !== 0 || item.file_type === 'asm' || item.file_type === 'dwg' || item.file_type === '3dtiles'
+            disabled:
+              item.status !== 0 || item.file_type === 'asm' || item.file_type === 'dwg' || item.file_type === '3dtiles'
           }
         })
         this.selectKey = this.plainOptions.map(item => {

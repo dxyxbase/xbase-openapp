@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-05 19:10:35
- * @LastEditTime: 2023-08-22 14:04:30
+ * @LastEditTime: 2023-09-18 17:30:44
  * @FilePath: /openapi-demoapp/config/config.default.js
  * @Description:
  */
@@ -15,7 +15,7 @@ module.exports = app => {
     fileSize: '100000mb',
     files: 1,
     mode: 'file',
-    fileExtensions: ['.geojson', '.ifc', '.csv', '.rvt', '.dgn', '.skp', '.glb', '.fbx', '.stl', '.dwg', '.3diles', '.obj', '.zip', '.tiff', '.tif'] // 增加对扩展名的文件支持
+    fileExtensions: ['.geojson', '.ifc', '.csv', '.rvt', '.dgn', '.skp', '.glb', '.fbx', '.stl', '.dwg', '.obj', '.zip', '.tiff', '.tif', '.rfa'] // 增加对扩展名的文件支持
   }
   exports.siteFile = {
     '/favicon.ico': fs.readFileSync(path.join(app.baseDir, 'app/web/asset/images/logo.png'))

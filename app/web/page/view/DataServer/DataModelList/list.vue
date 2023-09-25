@@ -5,7 +5,14 @@
         <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
         <p>暂无内容</p>
       </div>
-      <a-table v-else :columns="columns" :data-source="lists" :pagination="false" :rowKey="record => record.model_id" class="table-ui">
+      <a-table
+        v-else
+        :columns="columns"
+        :data-source="lists"
+        :pagination="false"
+        :rowKey="record => record.semantic_model_id"
+        class="table-ui"
+      >
         <div slot="name" slot-scope="text" class="file-name">
           <!-- <a-button key="name" type="link">
             <span>{{ text }}</span>
@@ -29,20 +36,48 @@
         </div>
       </a-table>
       <a-row type="flex" justify="end">
-        <a-pagination v-if="lists.length" style="margin: 12px 24px" class="page-ui" size="small" show-quick-jumper show-size-changer :current="page_num" :total="total" :pageSize="page_size" @change="handlePaging" @showSizeChange="changePageSize" />
+        <a-pagination
+          v-if="lists.length"
+          style="margin: 12px 24px"
+          class="page-ui"
+          size="small"
+          show-quick-jumper
+          show-size-changer
+          :current="page_num"
+          :total="total"
+          :pageSize="page_size"
+          @change="handlePaging"
+          @showSizeChange="changePageSize"
+        />
       </a-row>
     </div>
-    <a-modal width="650px" centered ok-text="确认" cancel-text="取消" @ok="autoMatch" title="自动标准化" :visible="visibleAutoMatch" :destroyOnClose="true" class="pop-ui" :maskClosable="false" @cancel="closeDia">
+    <a-modal
+      width="650px"
+      centered
+      ok-text="确认"
+      cancel-text="取消"
+      @ok="autoMatch"
+      title="自动标准化"
+      :visible="visibleAutoMatch"
+      :destroyOnClose="true"
+      class="pop-ui"
+      :maskClosable="false"
+      @cancel="closeDia"
+    >
       <template>
         <div>
           <a-form-item required label="模型分类标准" :labelCol="{ span: 8 }" :wrapperCol="{ span: 16 }">
             <a-select style="width: 100%" placeholder="请选择" v-model="standard_id">
-              <a-select-option v-for="(val, key) in publishList" :key="key" :value="val.standard_id">{{ val.name + '/' + val.version }}</a-select-option>
+              <a-select-option v-for="(val, key) in publishList" :key="key" :value="val.standard_id">
+                {{ val.name + '/' + val.version }}
+              </a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item required label="应用范围" :labelCol="{ span: 8 }" :wrapperCol="{ span: 16 }">
             <a-select style="width: 100%" placeholder="请选择" v-model="scope">
-              <a-select-option v-for="(val, key) in scopeObj" :key="key" :value="val.value">{{ val.name }}</a-select-option>
+              <a-select-option v-for="(val, key) in scopeObj" :key="key" :value="val.value">
+                {{ val.name }}
+              </a-select-option>
             </a-select>
           </a-form-item>
         </div>
@@ -52,7 +87,7 @@
 </template>
 <script>
 import { standard_model_processing_info, standard_publish_list, standard_model_autoMatch } from '@/apis/standard.js'
-import { model_list } from '@/apis/model.js'
+import { semantic_model_list } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 export default {
   data() {
@@ -90,13 +125,13 @@ export default {
       this.model_id = null
     },
     async getProgress(item) {
-      const result = await standard_model_processing_info({ model_id: item.model_id })
+      const result = await standard_model_processing_info({ model_id: item.semantic_model_id })
       console.log(result)
     },
     handleMatch(item) {
       let params = {
         model_path: item.render_path,
-        model_id: item.model_id,
+        model_id: item.semantic_model_id,
         name: item.name
       }
       this.$router.push({ path: '/data-standard/standard-model/member', query: params })
@@ -119,7 +154,7 @@ export default {
     openAuto(item) {
       this.visibleAutoMatch = true
       this.model_path = item.render_path
-      this.model_id = item.model_id
+      this.model_id = item.semantic_model_id
     },
     async getPublishList() {
       const result = await standard_publish_list()
@@ -142,17 +177,14 @@ export default {
       let params = {
         page_size: this.page_size,
         page_num: this.page_num,
-        has_bim_data: true,
-        status: '[0]'
+        filter_status: 4
       }
-      const res = await model_list(params)
+      const res = await semantic_model_list(params)
       if (res.code !== ResponseStatus.success) return
-      const {
-        data: { list = [], total = 0 }
-      } = res
-      this.lists = list
-      this.total = total
-      if (this.page_num !== 1 && list.length === 0) {
+
+      this.lists = res.data.semantic_model_list || []
+      this.total = res.data.total
+      if (this.page_num !== 1 && semantic_model_list.length === 0) {
         this.page_num = 1
         this.getList()
       }

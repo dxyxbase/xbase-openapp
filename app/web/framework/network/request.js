@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 11:10:37
- * @LastEditTime: 2023-08-21 14:00:16
+ * @LastEditTime: 2023-09-18 17:28:54
  * @FilePath: /openapi-demoapp/app/web/framework/network/request.js
  * @Description:
  */
@@ -18,7 +18,7 @@ const request = axios.create({
   xsrfCookieName: 'csrfToken'
 })
 // 通用错误代码
-const authCommonErrorCode = [10001000, 10001001, 10001002, 10001003, 10001004, 10001005, 10001006, 10001007, 10001008, 401]
+const authCommonErrorCode = [10001000, 10001002, 10001003, 10001004, 10001005, 10001006, 10001007, 10001008, 401]
 // 异常拦截处理器
 const errorHandler = error => {
   if (error.response) {
@@ -70,8 +70,11 @@ request.interceptors.response.use(response => {
     Message.warning(response.data.msg)
     window.localStorage.clear()
     router.push({ path: '/login' })
+  } else if (code === 10001001) {
+    router.push({ path: '/' })
+    return Message.warning(response.data.msg)
   } else if (code !== 0) {
-    Message.warning(response.data.msg)
+    return Message.warning(response.data.msg)
   }
   return response.data
 }, errorHandler)

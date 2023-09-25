@@ -515,7 +515,7 @@ export default {
 
 
 </script>
-<style scoped lang="less">
+<style scoped lang="less" scoped>
 .expressioncheck {
       .checkBox {
         width: 36px;

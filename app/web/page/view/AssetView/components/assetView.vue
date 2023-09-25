@@ -1,12 +1,25 @@
 <template>
   <div class="assetView">
-    <a-modal wrapClassName="assetView" centered :destroyOnClose="true" :title="previewName" :visible="visible" :footer="null" :maskClosable="false" :keyboard="false" :width="'calc(100% - 48px)'" :height="'calc(100% - 48px)'" class="pop-ui" @cancel="handleCancel">
+    <a-modal
+      wrapClassName="assetView"
+      centered
+      :destroyOnClose="true"
+      :title="previewName"
+      :visible="visible"
+      :footer="null"
+      :maskClosable="false"
+      :keyboard="false"
+      :width="'calc(100% - 48px)'"
+      :height="'calc(100% - 48px)'"
+      class="pop-ui"
+      @cancel="handleCancel"
+    >
       <div id="contenter_map"></div>
     </a-modal>
   </div>
 </template>
 <script type="text/babel">
-import { model_view_token } from '@/apis/model.js'
+import { view_token } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import { viewerToken } from '@/utils/setting.js'
 export default {
@@ -51,7 +64,7 @@ export default {
     async getViewerToken() {
       // model（模型）、component（构件-暂无）、asset（资产）、scene（场景）
       // 获取viewer_token 预览加载均需要
-      const result = await model_view_token({ file_id: this.wsTransInfo.id, viewer_type: 'asset' })
+      const result = await view_token({ file_id: this.wsTransInfo.id, viewer_type: 'asset' })
       if (result.code !== ResponseStatus.success) return this.$message.error('获取viewerToken失败')
       const {
         data: { token }
@@ -136,24 +149,34 @@ export default {
           } else if (type === 2) {
             //地形
             let url = this.getResourceUrl(this.renderPath, this.viewer)
-            this.app.viewer.setTerrain({
-              type: DX.TerrainProviderTypes.CesiumTerrain,
-              options: {
-                id: this.wsTransInfo.id,
-                url: url
-              }
-            })
+            this.app.viewer
+              .setTerrain({
+                type: DX.TerrainProviderTypes.CesiumTerrain,
+                options: {
+                  id: this.wsTransInfo.id,
+                  url: url
+                }
+              })
+              .then(() => {
+                app.viewer.gotoLayer(this.wsTransInfo.id)
+              })
+              .catch(err => {
+                console.error('加载资产失败')
+              })
             this.app.viewer.addLayer({
               type: DX.LayerTypes.TileMapService,
               options: {
                 id: 'ffc42f684e304f688e2234f89e0c0535',
-                url: this.getResourceUrl('paas-gis-base/imagery/global/World/Imagery/tilemapresource.xml', this.app.viewer)
+                url: this.getResourceUrl(
+                  'paas-gis-base/imagery/global/World/Imagery/tilemapresource.xml',
+                  this.app.viewer
+                )
               }
             })
           } else if (type === 3) {
             this.app.viewer
               .addLayer({
-                type: DX.LayerTypes.GeoJsonLayer,
+                type: this.renderPath.includes('.geojson') ? DX.LayerTypes.GeoJsonLayer : DX.LayerTypes.MVTLayer,
                 options: {
                   url: this.getResourceUrl(this.renderPath, this.viewer),
                   id: this.wsTransInfo.id

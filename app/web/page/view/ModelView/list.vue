@@ -1,7 +1,15 @@
 <template>
   <div class="model-box">
     <div class="head_opr">
-      <upload-tus type="primary" up_type="model" :is_slice="false" :is_free="is_free" style="display: inline-block" class="up" @refreshInit="upload" />
+      <upload-tus
+        type="primary"
+        up_type="model"
+        :is_slice="false"
+        :is_free="is_free"
+        style="display: inline-block"
+        class="up"
+        @refreshInit="upload"
+      />
       <!-- <upload-tus type="primary" up_type="model" :is_slice="true" :is_free="is_free" style="display: inline-block" class="up" @refreshInit="upload" /> -->
       <a-button type="primary" class="btn1" @click="handleAssembly(false, {})">模型装配</a-button>
       <a-button :disabled="!hasSelected" class="del" @click="handleDeletePatch('patch')">删除</a-button>
@@ -37,25 +45,39 @@
           <div slot-scope="text" slot="status">
             <div>{{ statuObj[text.toString()] }}</div>
           </div>
-          <!-- <template #update_time>
-          <div slot-scope="record">
-            <div>{{ record.update_time | formatDate }}</div>
-          </div>
-        </template> -->
           <!-- 操作 -->
           <div slot="Action" slot-scope="text, record" class="action-box">
-            <a-button v-if="record.status * 1 !== 1 && record.file_type !== 'asm' && record.status * 1 !== 4" key="preview" type="link" class="actionBtn" @click="transfer(record)">
+            <a-button
+              v-if="record.status * 1 !== 1 && record.file_type !== 'asm' && record.status * 1 !== 4"
+              key="preview"
+              type="link"
+              class="actionBtn"
+              @click="transfer(record)"
+            >
               <span>{{ record.status * 1 === 0 ? '重新转换' : '转换' }}</span>
             </a-button>
-            <a-button v-if="record.file_type === 'asm'" type="link" class="actionBtn" @click="handleAssembly(true, record)">
+            <a-button
+              v-if="record.file_type === 'asm'"
+              type="link"
+              class="actionBtn"
+              @click="handleAssembly(true, record)"
+            >
               <span>编辑装配</span>
             </a-button>
-            <a-button v-show="record.status * 1 === 1 || record.status * 1 === 4" key="stop" type="link" class="actionBtn" @click="cancelTranslation(record)">
+            <a-button
+              v-show="record.status * 1 === 1 || record.status * 1 === 4"
+              key="stop"
+              type="link"
+              class="actionBtn"
+              @click="cancelTranslation(record)"
+            >
               <span>终止转换</span>
             </a-button>
 
             <a-tooltip>
-              <template slot="title">模型预览之前请先确认此应用已具有对应的渲染服务权限，否则可能会出现token无效，无法预览的情况！</template>
+              <template slot="title">
+                模型预览之前请先确认此应用已具有对应的渲染服务权限，否则可能会出现token无效，无法预览的情况！
+              </template>
               <a-button v-show="record.status * 1 === 0" type="link" class="actionBtn" @click="handlePre(record)">
                 <span>预览</span>
               </a-button>
@@ -70,7 +92,10 @@
                 <span>更多</span>
               </a-button>
               <a-menu slot="overlay" class="action-drop">
-                <a-menu-item v-show="record.status * 1 === 0 && record.file_type !== 'asm'" :style="record.status !== 0 ? 'color:#ccc!important;cursor:not-allowed' : ''">
+                <a-menu-item
+                  v-show="record.status * 1 === 0 && record.file_type !== 'asm'"
+                  :style="record.status !== 0 ? 'color:#ccc!important;cursor:not-allowed' : ''"
+                >
                   <a href="javascript:;" @click="handleDetail(record, 'transformdetail')">转换详情</a>
                 </a-menu-item>
                 <a-menu-item>
@@ -90,7 +115,13 @@
                   <a href="javascript:;" @click="getTree(record)">模型构件树</a>
                 </a-menu-item>
                 <a-menu-item v-if="record.status !== 1 && record.status !== 4">
-                  <a href="javascript:;" :class="{ notAllowed: record.review_status }" @click="handleDeletePatch('single', record)">删除</a>
+                  <a
+                    href="javascript:;"
+                    :class="{ notAllowed: record.review_status }"
+                    @click="handleDeletePatch('single', record)"
+                  >
+                    删除
+                  </a>
                 </a-menu-item>
               </a-menu>
             </a-dropdown>
@@ -98,33 +129,103 @@
         </a-table>
       </div>
       <a-row type="flex" justify="end">
-        <a-pagination style="margin: 12px 24px" v-if="lists.length" size="small" show-quick-jumper show-size-changer :current="page_num" :total="total" :pageSize="page_size" @change="handlePaging" @showSizeChange="changePageSize" />
+        <a-pagination
+          style="margin: 12px 24px"
+          v-if="lists.length"
+          size="small"
+          show-quick-jumper
+          show-size-changer
+          :current="page_num"
+          :total="total"
+          :pageSize="page_size"
+          @change="handlePaging"
+          @showSizeChange="changePageSize"
+        />
       </a-row>
     </div>
     <!-- 转换 -->
 
-    <transfer v-if="visibleTransfer" :visible="visibleTransfer" :tempItem="tempItem" :disabled="transferDisabled" @closeTransfer="closeTransfer" @fetchTransfer="fetchTransfer"></transfer>
-    <a-modal :title="`${title}`" :visible="visibleDetail" :destroyOnClose="true" :footer="null" centered class="pop-ui" width="40rem" :maskClosable="false" @cancel="visibleDetail = false">
+    <transfer
+      v-if="visibleTransfer"
+      :visible="visibleTransfer"
+      :tempItem="tempItem"
+      :disabled="transferDisabled"
+      @closeTransfer="closeTransfer"
+      @fetchTransfer="fetchTransfer"
+    ></transfer>
+    <a-modal
+      :title="title"
+      :visible="visibleDetail"
+      :destroyOnClose="true"
+      :footer="null"
+      centered
+      class="pop-ui"
+      width="40rem"
+      :maskClosable="false"
+      @cancel="visibleDetail = false"
+    >
       <detail v-if="visibleDetail" :title="title" :visible="visibleDetail" :tempItem="detailTemp"></detail>
     </a-modal>
-    <a-modal title="查找模型属性" :visible="visiblequeryAttr" :destroyOnClose="true" :footer="null" centered class="pop-ui" width="40rem" :maskClosable="false" @cancel="visiblequeryAttr = false">
+    <a-modal
+      title="查找模型属性"
+      :visible="visiblequeryAttr"
+      :destroyOnClose="true"
+      :footer="null"
+      centered
+      class="pop-ui"
+      width="40rem"
+      :maskClosable="false"
+      @cancel="visiblequeryAttr = false"
+    >
       <queryAttr v-if="visiblequeryAttr" :item="queryItem" :visible="visiblequeryAttr"></queryAttr>
     </a-modal>
 
-    <a-modal title="查找模型属性" :visible="visiblequeryModel" :destroyOnClose="true" :footer="null" centered class="pop-ui" width="40rem" :maskClosable="false" @cancel="visiblequeryModel = false">
+    <a-modal
+      title="查找模型属性"
+      :visible="visiblequeryModel"
+      :destroyOnClose="true"
+      :footer="null"
+      centered
+      class="pop-ui"
+      width="40rem"
+      :maskClosable="false"
+      @cancel="visiblequeryModel = false"
+    >
       <queryModel v-if="visiblequeryModel" :item="queryModel" :visible="visiblequeryModel"></queryModel>
     </a-modal>
     <!-- 模型预览 -->
-    <viewModel v-if="preVisible" :visible="preVisible" :fileType="previewFileType" :renderPath="previewPath" :fileName="previewName" :wsTransInfo="wsTransInfo" @handlePreviewModel="handlePreviewModel"></viewModel>
+    <viewModel
+      v-if="preVisible"
+      :visible="preVisible"
+      :fileType="previewFileType"
+      :renderPath="previewPath"
+      :fileName="previewName"
+      :wsTransInfo="wsTransInfo"
+      @handlePreviewModel="handlePreviewModel"
+    ></viewModel>
     <!-- 模型装配 -->
-    <assembly v-if="visibleAssembly" :isEdit="isEdit" :visible="visibleAssembly" :assItem="assItem" @assemblyClose="assemblyClose"></assembly>
+    <assembly
+      v-if="visibleAssembly"
+      :isEdit="isEdit"
+      :visible="visibleAssembly"
+      :assItem="assItem"
+      @assemblyClose="assemblyClose"
+    ></assembly>
   </div>
 </template>
 <script type="text/babel">
 import transfer from './components/transfer.vue'
 import viewModel from './viewModel/index.vue'
 import assembly from './components/assembly.vue'
-import { model_list, model_del, model_translation, model_detail, model_cancel_translation, model_transform_detail, model_attr } from '@/apis/model.js'
+import {
+  model_list,
+  model_del,
+  model_translation,
+  model_detail,
+  model_cancel_translation,
+  model_transform_detail,
+  model_attr
+} from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import detail from './components/detail.vue'
 import queryAttr from './components/queryAttr.vue'
@@ -172,9 +273,9 @@ export default {
         order: 4,
         sort: 0
       },
-      // 文件状态； -7：转换终止后的失败，-3：上传成功，-2：转换失败，0：转换成功，1：转换中，4：等待中
+      // 文件状态； -7：转换中止，-3：上传成功，-2：转换失败，0：转换成功，1：转换中，4：等待中
       statuObj: {
-        '-7': '转换终止后的失败',
+        '-7': '转换中止',
         '-3': '上传成功',
         '-2': '转换失败',
         0: '转换成功',
@@ -492,7 +593,7 @@ export default {
     margin-top: 12px;
     display: flex;
     flex-direction: column;
-    min-height: 100% !important;
+    // min-height: 100% !important;
     .noData {
       width: 240px;
       margin: 0 auto;

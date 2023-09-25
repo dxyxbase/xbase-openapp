@@ -8,8 +8,20 @@
   </div>
 </template>
 <script>
-import { model_view_token } from '@/apis/model.js'
-import { load_list, sence_edit, sence_detail, searchLocation, getTilesetJson,getCimCategory ,getElementSemanticProperty,updateSemantic,saveSemantic,deleteSemantic,getCimNodeSemantic} from '@/apis/sence.js'
+import { view_token } from '@/apis/model.js'
+import {
+  load_list,
+  sence_edit,
+  sence_detail,
+  searchLocation,
+  getTilesetJson,
+  getCimCategory,
+  getElementSemanticProperty,
+  updateSemantic,
+  saveSemantic,
+  deleteSemantic,
+  getCimNodeSemantic
+} from '@/apis/sence.js'
 import { viewerToken } from '@/utils/setting.js'
 export default {
   components: {
@@ -45,9 +57,9 @@ export default {
       window.sceneEditor = null
       this.$router.push('/sceneView')
     },
-    async getmodel_view_token() {
+    async getview_token() {
       // eslint-disable-next-line no-return-await
-      return await model_view_token({
+      return await view_token({
         file_id: this.sceneId,
         viewer_type: 'scene'
       }).then(res => {
@@ -69,10 +81,10 @@ export default {
       options.baseURL = baseUrl
       options.staticHost = staticHost
       options.serverHost = serverHost
-      const model_view_token = await this.getmodel_view_token()
+      const view_token = await this.getview_token()
       // 视图 viewerToken
       options.previewToken = {
-        Authorization: viewerToken(model_view_token)
+        Authorization: viewerToken(view_token)
       }
       options.sceneAssetsBaseUrl = this.getSceneBaseUrl()
       // debugger
@@ -85,7 +97,7 @@ export default {
         // 新增
         getCimCategory: getCimCategory,
         getElementSemanticProperty: getElementSemanticProperty,
-        updateSemantic: updateSemantic, 
+        updateSemantic: updateSemantic,
         saveSemantic: saveSemantic,
         deleteSemantic: deleteSemantic,
         getCimNodeSemantic: getCimNodeSemantic,

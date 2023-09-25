@@ -1,6 +1,18 @@
 <template>
   <div class="viewModel_">
-    <el-dialog :modal-append-to-body="false" width="100%" custom-class="center-dialog" wrapClassName="previewModal_1" :destroyOnClose="true" :title="fileName" :visible="visible" :footer="null" :maskClosable="false" :keyboard="false" @close="handleCancel">
+    <el-dialog
+      :modal-append-to-body="false"
+      width="100%"
+      custom-class="center-dialog"
+      wrapClassName="previewModal_1"
+      :destroyOnClose="true"
+      :title="fileName"
+      :visible="visible"
+      :footer="null"
+      :maskClosable="false"
+      :keyboard="false"
+      @close="handleCancel"
+    >
       <div class="contenter">
         <div id="contenter_map" class="contenter_map" ref="contenter_map">
           <Attribute
@@ -16,12 +28,21 @@
             @closePop="closePop"
           />
         </div>
+
+        <div v-if="loadingBimModel" class="loadingBimModel">
+          <div class="bim-preview-back" @click="destroyBimViewer">
+            <a-icon type="left" class="back-btn" />
+            <p class="loading-text">取消</p>
+          </div>
+          <div class="loading-img"></div>
+          <p class="loading-text">数据准备中...</p>
+        </div>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { model_view_token } from '@/apis/model.js'
+import { view_token } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import { getResourceUrl } from '@/utils/layerManager.js'
 import { sence_detail, query_uid_byAsset } from '@/apis/sence.js'
@@ -64,10 +85,19 @@ export default {
       modelStatus: '',
       page_num: 1,
       page_size: 10,
+      sceneName: null,
+      sceneConfig: null,
+      sceneLayer: null,
+      loadingBimModel: false,
       portList: [],
+      modelLevelPath: {
+        build: 'build',
+        space: 'space',
+        component: ''
+      },
       total: 0,
       activeItem: {},
-      sceneConfig: null,
+      bimRenderTypeTxt: '',
       form: {
         desc: ''
       },
@@ -178,7 +208,7 @@ export default {
     // 获取viewer_token
     async getViewerToken() {
       // model（模型）、component（构件）、asset（资产）、scene（场景）
-      const result = await model_view_token({ file_id: this.fileId, viewer_type: 'scene' })
+      const result = await view_token({ file_id: this.fileId, viewer_type: 'scene' })
       if (result.code !== ResponseStatus.success) return this.$message.error('获取viewerToken失败')
       const {
         data: { token }
@@ -263,7 +293,27 @@ export default {
       options.mainToolbar = options.mainToolbar.flatMap(item => (filterArr.includes(item) ? [] : [item]))
       this.app.init(options).then(async () => {
         // 获取viewer实例
-        const mutexCommands = ['roaming_sub', 'DX_COMMAND_SHOW_FREE_ROAMING_TOOLBAR', 'ShowPathRoaming', 'ShowFreeRoamingCommand', 'ShowPathRoaming', 'show_layer', 'show_viewpoint_list', 'enable_measure', 'analysis_sub', 'DX_COMMAND_ENABLE_VISIBLE_ANALYSIS', 'DX_COMMAND_ENABLE_VIEWSHED_ANALYSIS', 'DX_COMMAND_ENABLE_HEIGHT_ANALYSIS', 'DX_COMMAND_ENABLE_SKYLINE_ANALYSIS', 'DX_COMMAND_ENABLE_INUNDATION_ANALYSIS', 'DX_COMMAND_ENABLE_VOLUME_ANALYSIS', 'DX_COMMAND_ENABLE_SLOP_ANALYSIS', 'DX_COMMAND_ENABLE_CONTOUR_LINE', 'DX_COMMAND_ENABLE_WEATHER', 'show_setting']
+        const mutexCommands = [
+          'roaming_sub',
+          'DX_COMMAND_SHOW_FREE_ROAMING_TOOLBAR',
+          'ShowPathRoaming',
+          'ShowFreeRoamingCommand',
+          'ShowPathRoaming',
+          'show_layer',
+          'show_viewpoint_list',
+          'enable_measure',
+          'analysis_sub',
+          'DX_COMMAND_ENABLE_VISIBLE_ANALYSIS',
+          'DX_COMMAND_ENABLE_VIEWSHED_ANALYSIS',
+          'DX_COMMAND_ENABLE_HEIGHT_ANALYSIS',
+          'DX_COMMAND_ENABLE_SKYLINE_ANALYSIS',
+          'DX_COMMAND_ENABLE_INUNDATION_ANALYSIS',
+          'DX_COMMAND_ENABLE_VOLUME_ANALYSIS',
+          'DX_COMMAND_ENABLE_SLOP_ANALYSIS',
+          'DX_COMMAND_ENABLE_CONTOUR_LINE',
+          'DX_COMMAND_ENABLE_WEATHER',
+          'show_setting'
+        ]
         this.viewer = this.app.getViewer()
         // 处理按钮互斥
         const commandManagerMap = this.app.commandManager.mutexCommands
@@ -312,18 +362,88 @@ export default {
         })
       })
     },
+    checkAssetsData(assetsData, configData) {
+      const data = assetsData.get(configData.id)
+      const flag = !!data
+      if (data && data.name !== configData.name) {
+        configData.name = data.name
+      }
+      if (data && data.source) {
+        configData.source = data.source
+      }
+      return flag
+    },
+    async getModelUrlWithLevel(data, levelIndex = -1) {
+      const { tiles_path, hierarchy = [] } = data
+      let url
+      if (hierarchy[levelIndex]) {
+        url = `${tiles_path}${this.modelLevelPath[hierarchy[levelIndex]]}/tileset.json`
+        return await this.getModelUrlWithLevel(data, --levelIndex)
+      } else if (hierarchy.length === 1 && levelIndex > -1) {
+        url = `${tiles_path}${this.modelLevelPath[hierarchy[0]]}/tileset.json`
+        return await this.getModelUrlWithLevel(data)
+      } else {
+        url = tiles_path + '/tileset.json'
+      }
+      return url
+    },
+    async getHierarchyData(hierarchy = [], { id, tiles_path }) {
+      let result = []
+      if (!hierarchy) return result
+      let baseURL = `${window.DXYP.sdkServer.baseUrl}viewer/model/`
+      for (let i = 0; i < hierarchy.length; i++) {
+        result.push({
+          key: hierarchy[i],
+          value: baseURL + (await this.getModelUrlWithLevel({ id, tiles_path, hierarchy }, i))
+        })
+      }
+      return result
+    },
+    async formatConfig() {
+      let {
+        layer: { terrains, models, imageries, vectors }
+      } = this.sceneConfig
+      const result = _.cloneDeep(this.sceneConfig)
+      const assetsData = this.getAssetsData()
+      const baseURL = `${window.DXYP.sdkServer.baseUrl}viewer/model/`
+      result.layer.terrains = (terrains || []).filter(item => this.checkAssetsData(assetsData, item))
+      result.layer.vectors = (vectors || []).filter(item => this.checkAssetsData(assetsData, item))
+      models = (models || []).filter(item => this.checkAssetsData(assetsData, item))
+      result.layer.models = await Promise.all(
+        models.map(async item => {
+          const apiData = assetsData.get(item.id)
+          item.hierarchy = await this.getHierarchyData(apiData.hierarchy, {
+            id: apiData.id,
+            tiles_path: apiData.tiles_path
+          })
+          if (item.hierarchy.length) {
+            item.url = item.hierarchy[0].value.replace(baseURL, '')
+          }
+          if (apiData.render_path) {
+            item.bim_url = apiData.render_path
+          }
+          return item
+        })
+      )
+      result.layer.imageries = (imageries || []).filter(item => this.checkAssetsData(assetsData, item))
+      return result
+    },
     initScene() {
-      sence_detail(this.fileId).then(result => {
+      sence_detail(this.fileId).then(async result => {
         if (result.code !== ResponseStatus.success) return this.$message.error('获取详情失败')
+
+        this.sceneName = result.data.name
         this.sceneConfig = result.data.source ? JSON.parse(result.data.source) : null
-        app.execute('DX_COMMAND_SET_SCENE_CONFIG', {
-          sceneConfig: this.sceneConfig,
+        this.sceneLayer = result.data.layer
+        const configData = await this.formatConfig()
+        this.app.execute('DX_COMMAND_SET_SCENE_CONFIG', {
+          sceneConfig: configData,
           options: {
             baseUrl: `${window.DXYP.sdkServer.baseUrl}viewer/model/`
           }
         })
-        app.viewer.enableDepthTestAgainstTerrain(true)
-        app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW')
+
+        this.app.viewer.enableDepthTestAgainstTerrain(true)
         let modelList = this.sceneConfig.layer.models || []
         modelList = modelList.filter(item => {
           return item.type !== 1
@@ -331,155 +451,221 @@ export default {
         this.previewModels = modelList.map(model => {
           return model.id
         })
-        app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW', { toggled: true, models: this.previewModels })
-        app.viewer.on(DX.Events.ADD_MODEL_PREVIEW, data => {
-          if (!modelList || previewData.id === data.id) return
-          if (previewData.bimApp) previewData.bimApp.destroy()
+        this.app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW', { toggled: true, models: this.previewModels })
+        this.app.viewer.on(DX.Events.ADD_MODEL_PREVIEW, data => {
+          if (previewData.id === data.id) return
+          this.destroyBimViewer()
           previewData = {
             id: data.id,
             data
           }
-
           const modelIndex = modelList.findIndex(item => item.id === data.id)
           if (modelIndex < 0) return
           const modelData = modelList[modelIndex]
-          data.name = modelData.name.substring(0, modelData.name.lastIndexOf('.'))
-
-          let bimApp = this.addBimViewer(app.viewer, modelData.bim_url, () => {
+          // console.log(modelData, '模型列表')
+          // debugger
+          let bimApp = this.addBimViewer(this.app.viewer, modelData.bim_url, () => {
+            console.log('addBimViewer===', modelData, modelData.bim_url)
             if (previewData.id === data.id) {
-              app.execute('DX_COMMAND_UPDATE_CIM_MODEL_BIM_PREVIEW', {
-                ...data,
-                state: 'loaded'
-              })
+              this.updateModelBimPreview(data, 'loaded')
+              this.showBimViewer(previewData.id, previewData)
             }
           })
           previewData.bimApp = bimApp
         })
 
-        app.viewer.on(DX.Events.REMOVE_MODEL_PREVIEW, id => {
+        this.app.viewer.on(DX.Events.REMOVE_MODEL_PREVIEW, id => {
           if (previewData.id === id) {
-            if (previewData.bimApp) {
-              const domElement = previewData.bimApp.mainWindow.dom
-              previewData.bimApp.destroy()
-              domElement.remove()
-            }
-            previewData = {}
+            console.log('===', previewData.bimApp)
+            this.destroyBimViewer()
           }
         })
 
-        app.viewer.on(DX.Events.SHOW_MODEL_PREVIEW, id => {
+        this.app.viewer.on(DX.Events.SHOW_MODEL_PREVIEW, id => {
           previewData.id === id && this.showBimViewer(id, previewData)
         })
 
-        app.viewer.on('EVENT_FREE_ROAMING_MODE_CHANGED', ({ id, type }) => {
-          if (!modelList) return
-          const modelIndex = modelList.findIndex(item => item.id === id)
-          if (modelIndex < 0) return
-          const modelData = modelList[modelIndex]
+        // app.viewer.on('EVENT_FREE_ROAMING_MODE_CHANGED', ({ id, type }) => {
+        //   if (!modelList) return
+        //   const modelIndex = modelList.findIndex(item => item.id === id)
+        //   if (modelIndex < 0) return
+        //   const modelData = modelList[modelIndex]
 
-          let url
-          if (modelData.hierarchy.length === 2) {
-            url = modelData.hierarchy[type === 'indoor_mode' ? 0 : 1].value
-          } else if (modelData.hierarchy.length === 1) {
-            url = modelData.hierarchy[0].value
-          } else {
-            url = modelData.url
-          }
-          app.viewer.updateModelPath(id, getResourceUrl(url, app.viewer))
-        })
-        let freeRoamingPanel
-        for (let panel of app.mainWindow.panelManager.panels.values()) {
-          if (panel.name === 'DX_PANEL_FREE_ROAMING_TOOLBAR') {
-            freeRoamingPanel = panel
-            break
-          }
-        }
-        freeRoamingPanel &&
-          freeRoamingPanel.on(DX.Events.PANEL_VISIBLE_CHANGED, visible => {
-            app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW', { toggled: !visible })
-            if (visible) {
-              if (previewData.bimApp) previewData.bimApp.destroy()
-              previewData = {}
-            }
-          })
+        //   let url
+        //   if (modelData.hierarchy.length === 2) {
+        //     url = modelData.hierarchy[type === 'indoor_mode' ? 0 : 1].value
+        //   } else if (modelData.hierarchy.length === 1) {
+        //     url = modelData.hierarchy[0].value
+        //   } else {
+        //     url = modelData.url
+        //   }
+        //   app.viewer.updateModelPath(id, getResourceUrl(url, app.viewer))
+        // })
+        // let freeRoamingPanel
+        // for (let panel of app.mainWindow.panelManager.panels.values()) {
+        //   if (panel.name === 'DX_PANEL_FREE_ROAMING_TOOLBAR') {
+        //     freeRoamingPanel = panel
+        //     break
+        //   }
+        // }
+        // freeRoamingPanel &&
+        //   freeRoamingPanel.on(DX.Events.PANEL_VISIBLE_CHANGED, visible => {
+        //     app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW', { toggled: !visible })
+        //     if (visible) {
+        //       if (previewData.bimApp) previewData.bimApp.destroy()
+        //       previewData = {}
+        //     }
+        //   })
       })
     },
+
+    destroyBimViewer() {
+      if (previewData.bimApp) {
+        const domElement = previewData.bimApp.mainWindow.dom
+        previewData.bimApp.destroy()
+        domElement.remove()
+      }
+      previewData.data && this.updateModelBimPreview(previewData.data, 'unloaded')
+      previewData = {}
+      this.loadingBimModel = false
+    },
+    getLoadList() {
+      const LAYER_TYPE = {
+        IMAGERIES: 1,
+        TERRAINS: 2,
+        VECTOR: 3,
+        OBLIQUE_PHOTOGRAPHY: 4
+      }
+      let imageries = (this.sceneLayer.assets || []).filter(item => item.type === LAYER_TYPE.IMAGERIES)
+      let terrains = (this.sceneLayer.assets || []).filter(item => item.type === LAYER_TYPE.TERRAINS)
+      let threeDTiles = (this.sceneLayer.assets || []).filter(item => item.type === LAYER_TYPE.OBLIQUE_PHOTOGRAPHY)
+      let vectors = (this.sceneLayer.assets || []).filter(item => item.type === LAYER_TYPE.VECTOR)
+      let models = this.sceneLayer.models || []
+      return {
+        imageries,
+        terrains,
+        threeDTiles,
+        vectors,
+        models
+      }
+    },
+
+    getAssetsData() {
+      const { threeDTiles, terrains, models, imageries, vectors } = this.getLoadList()
+      const allAssets = [...threeDTiles, ...terrains, ...vectors, ...models, ...imageries]
+      const result = new Map()
+      allAssets.forEach(item => {
+        result.set(item.asset_id || item.id, item)
+      })
+      return result
+    },
+    getCurrentRenderer(viewer) {
+      const BimEngine = {
+        webgl: 'BME',
+        sme: 'SME',
+        hybrid: 'FME'
+      }
+
+      const CimEngine = {
+        cesium: 'CME',
+        cimStreaming: 'RME'
+      }
+      let renderTypeTxt = ''
+      const engineType = viewer.engineType
+      if (BimEngine.hasOwnProperty(engineType)) {
+        if (engineType === 'hybrid') {
+          const currentEngine = viewer.engine.currentEngine
+          renderTypeTxt = BimEngine[currentEngine]
+        } else {
+          renderTypeTxt = BimEngine[engineType]
+        }
+      }
+
+      if (CimEngine.hasOwnProperty(engineType)) {
+        renderTypeTxt = CimEngine[engineType]
+      }
+      return renderTypeTxt
+    },
     showBimViewer(id, data) {
-      app.viewer.visibleLayer(id, false)
-      app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW')
+      this.app.viewer.visibleLayer(id, false)
+      // app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW')
       let bimApp = data.bimApp
-      bimApp.viewer.domElement.parentElement.style.display = 'unset'
-      bimApp.viewer.domElement.style.background = ' rgba(0,0,0,.5)'
-      //更新界面
-      bimApp.mainWindow.resize()
+      bimApp.viewer.domElement.parentElement.style.zIndex = '999'
 
       showPanels.length = 0
-      app.mainWindow.panelManager.panels.forEach(panel => {
+      this.app.mainWindow.panelManager.panels.forEach(panel => {
         if (panel.visibled) {
           showPanels.push(panel)
           panel.visibled = false
         }
       })
+      this.app.mainWindow.mainToolbarEntity.show(false)
       bimApp.mainWindow.mainToolbarEntity.showExit(true)
-      !data.initClick &&
-        bimApp.mainWindow.mainToolbarEntity.secondToolbarExit.onClick(() => {
-          bimApp.viewer.domElement.parentElement.style.display = 'none'
-          app.viewer.visibleLayer(id, true)
-          showPanels.forEach(panel => {
-            panel.visibled = true
-          })
-          showPanels.length = 0
-          app.execute('DX_COMMAND_ENABLE_CIM_MODEL_BIM_PREVIEW')
+      bimApp.mainWindow.mainToolbarEntity.secondToolbarExit.onClick(() => {
+        this.bimRenderTypeTxt = ''
+        bimApp.viewer.isFullScreen = false
+        bimApp.viewer.domElement.parentElement.style.zIndex = '-1'
+        this.app.viewer.visibleLayer(id, true)
+        this.app.mainWindow.mainToolbarEntity.show(true)
+        showPanels.forEach(panel => {
+          panel.visibled = true
         })
-      data.initClick = true
+        showPanels.length = 0
+      })
     },
     addBimViewer(viewer, url, callback) {
+      this.loadingBimModel = true
       let options = new DX.DefaultConfigs()
+      options.engine = 'hybrid'
       options.staticHost = viewer.options.staticHost
       options.serverHost = window.DXYP.sdkServer.serverHost
+      console.log('地址', options.staticHost, options.serverHost)
       options.mainToolbar = [...new Set([...options.mainToolbar])]
-      options.engine = 'webgl'
       let container = document.createElement('div')
-      container.class = 'bimViewer'
+      // container.class = 'bimViewer'
       container.style.cssText = `
           top: -100%;
           overflow: hidden;
-          display: none;
-          z-index: 999;
+          height: 100%;
+          width: 100%;
+          z-index: -1;
       `
       viewer.domElement.parentElement.appendChild(container)
       var bimApp = new DX.Application(container)
       //初始化应用
       bimApp.init(options).then(() => {
         //打开模型
-        bimApp.mainWindow.openFile(url).then(() => {
-          callback && callback()
+        bimApp.mainWindow.openFile(url)
+        bimApp.viewer.on(DX.Events.SCENE_READY, () => {
+          setTimeout(() => {
+            bimApp.viewer.engine.setCubeTargetBackground(
+              {
+                positiveX: '/terrain/px.jpg',
+                negativeX: '/terrain/nx.jpg',
+                positiveY: '/terrain/py.jpg',
+                negativeY: '/terrain/ny.jpg',
+                positiveZ: '/terrain/pz.jpg',
+                negativeZ: '/terrain/nz.jpg'
+              },
+              bimApp.options.staticHost,
+              '/images/sky'
+            )
+            setTimeout(() => {
+              this.loadingBimModel = false
+              callback && callback()
+            }, 1000)
+          }, 1000)
         })
+        bimApp.viewer.domElement.className = 'bimPreviewerViewer'
         //更新界面
         bimApp.mainWindow.update()
+        bimApp.mainWindow.onWindowResized()
       })
       return bimApp
-    },
-    observerClick() {
-      // 监听鼠标点下事件
-      this.zIndex = Date.now() / 500
-      const popDoms = Array.from(document.getElementsByClassName('popDom'))
-      if (popDoms.length) {
-        popDoms.forEach(item => {
-          item.addEventListener(
-            'mousedown',
-            () => {
-              this.mouseDown(item)
-            },
-            { signal: controller.signal }
-          )
-        })
-      }
     }
   },
   mounted() {
     this.init()
-    this.observerClick()
   }
 }
 </script>
@@ -491,11 +677,59 @@ export default {
   padding: 0 !important;
 }
 
-.center-dialog {
-  // top: 50%;
-  // transform: translateY(-50%);
+.loadingBimModel {
+  z-index: 1000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .bim-preview-back {
+    position: absolute;
+    top: 2.25rem;
+    left: 2.25rem;
+    display: flex;
+    height: 1.5rem;
+    align-items: baseline;
+    cursor: pointer;
+
+    .back-btn {
+      width: 1.5rem;
+      height: 1.5rem;
+      background: #4c5263;
+      border-radius: 0.75rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      margin-right: 0.375rem;
+    }
+
+    .loading-text {
+      font-size: 1rem;
+    }
+  }
+
+  .loading-img {
+    width: 320px;
+    height: 320px;
+    background: url('~@/asset/attributePop/preview_loading.gif');
+    background-size: 100% 100%;
+  }
+
+  .loading-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 25px;
+  }
 }
-// 自定义按钮样式
 ::v-deep .attributeCus {
   background: url('~@/asset/attributePop/attribute.svg') !important;
 }

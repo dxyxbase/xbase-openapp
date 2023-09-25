@@ -31,11 +31,6 @@ export default {
       visible: false,
       current: 0,
       models:[],
-      searchForm: {
-        page_num: 1,
-        page_size: 10,
-        has_bim_data: true
-      },
       modelList:[],
       clashFormState: {}
     }
@@ -67,7 +62,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .colAddSteps{
     padding: 30px 133px !important;
     margin-bottom: 36px;

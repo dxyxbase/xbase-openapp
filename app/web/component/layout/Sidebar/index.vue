@@ -8,7 +8,23 @@
 <style lang="less" scoped>
 .menus {
   position: relative;
-  height: 100%;
+  height: 101%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.menus::-webkit-scrollbar {
+    width:6px;
+    height:60px;
+}
+.menus::-webkit-scrollbar-thumb {
+    width:6px;
+    height:60px;
+    background-color: #DBDBDB;
+    border-radius: 3px;
+}
+.menus::-webkit-scrollbar-thumb:hover {
+    background-color: #AAAAAA;
+    cursor: pointer;
 }
 </style>
 <script>

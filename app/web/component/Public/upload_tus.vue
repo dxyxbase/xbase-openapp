@@ -1,7 +1,22 @@
 <template>
   <div class="flexBetween">
     <div>
-      <a-upload ref="uploadWrapper" name="file" :multiple="false" action="" :beforeUpload="beforeUpload" :file-list="fileList" :remove="handleRemove" :accept="up_type === 'model' ? fileModel : asset_type === 3 ? '.geojson' : fileAsset" :customRequest="customRequest" :showUploadList="false" @preview="preview" @change="handleChange">
+      <a-upload
+        ref="uploadWrapper"
+        name="file"
+        :multiple="false"
+        action=""
+        :beforeUpload="beforeUpload"
+        :file-list="fileList"
+        :remove="handleRemove"
+        :accept="
+          up_type === 'model' ? fileModel : up_type === 'member' ? '.rfa' : asset_type === 3 ? '.geojson' : fileAsset
+        "
+        :customRequest="customRequest"
+        :showUploadList="false"
+        @preview="preview"
+        @change="handleChange"
+      >
         <a-button :disabled="uploadDisabled" class="btn" type="primary">
           {{ is_slice ? '分片上传' : '普通上传' }}
         </a-button>
@@ -16,6 +31,7 @@ import storage from 'store'
 import * as tus from 'tus-js-client'
 import { model_upload_tus, model_upload } from '@/apis/model.js'
 import { asset_upload, asset_upload_tus, tus_upload } from '@/apis/asset.js'
+import { model_components_upload, model_components_save } from '@/apis/components.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 import { fileModel, fileAsset } from '@/utils/setting.js'
 export default {
@@ -204,12 +220,11 @@ export default {
           .finally(() => {
             this.uploadDisabled = false
           })
-      } else {
+      } else if (this.up_type === 'asset') {
         let formData = new FormData()
         formData.append('file', data.file)
         formData.append('name', this.name)
         formData.append('asset_type', this.asset_type * 1)
-
         this.uploadDisabled = true
         asset_upload(formData)
           .then(res => {
@@ -217,6 +232,20 @@ export default {
             if (res.code !== ResponseStatus.success) return
             this.$bus.emit('upData/asset')
             this.$message.success('上传成功')
+          })
+          .finally(() => {
+            this.uploadDisabled = false
+          })
+      } else if (this.up_type === 'member') {
+        let formData = new FormData()
+        formData.append('file', data.file)
+        this.uploadDisabled = true
+        model_components_upload(formData)
+          .then(res => {
+            this.uploadDisabled = false
+            if (res.code !== ResponseStatus.success) return
+            this.$message.success('上传成功')
+            this.$emit('refreshInit')
           })
           .finally(() => {
             this.uploadDisabled = false
@@ -236,6 +265,8 @@ export default {
         if (this.asset_type * 1 === 3) {
           fileArr = '.geojson'
         }
+      } else if (this.up_type === 'member') {
+        fileArr = '.rfa'
       }
       return fileArr.includes(typeFile.toLowerCase())
     },

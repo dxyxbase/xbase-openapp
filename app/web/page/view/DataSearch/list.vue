@@ -172,6 +172,8 @@ export default {
     },
     // 改变每页数量
     changePageSize(current, pageSize) {
+      this.page_num = 1
+      this.searchForm.page_num = 1
       this.page_size = pageSize
       this.searchForm.page_size = pageSize
       this.getRecordList()

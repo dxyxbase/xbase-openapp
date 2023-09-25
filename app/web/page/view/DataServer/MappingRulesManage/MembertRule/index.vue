@@ -3,7 +3,10 @@
     <div class="head-btn">
       <a-button type="primary" @click="visible = true">恢复默认规则</a-button>
       <a-button type="primary" :disabled="lists.length === 5" @click="handleEdit('add', {})">新增规则</a-button>
-      <a-alert message="该规则适用于构件自动标准化过程。自动标准化将按规则顺序执行，有匹配结果则执行终止，无匹配结果则执行下一条规则，请注意规则顺序！" banner />
+      <a-alert
+        message="该规则适用于构件自动标准化过程。自动标准化将按规则顺序执行，有匹配结果则执行终止，无匹配结果则执行下一条规则，请注意规则顺序！"
+        banner
+      />
     </div>
     <div class="table-box">
       <div v-if="lists.length === 0" class="noData" style="text-align: center">
@@ -11,7 +14,14 @@
         <p>暂无内容</p>
       </div>
 
-      <a-table v-else :columns="columns" :data-source="lists" :pagination="false" :rowKey="record => record.rule_id" class="table-ui">
+      <a-table
+        v-else
+        :columns="columns"
+        :data-source="lists"
+        :pagination="false"
+        :rowKey="record => record.rule_id"
+        class="table-ui"
+      >
         <div slot="Action" slot-scope="text, record" class="action-box">
           <a-button @click="move(1, record)" :disabled="record.num === 1" type="link" class="actionBtn">
             <span>上移</span>
@@ -34,7 +44,17 @@
       <h3>是否确定恢复默认规则？</h3>
     </a-modal>
     <!-- 新建/编辑规则 -->
-    <a-modal destroyOnClose width="800px" centered v-model="visibleEdit" :title="type === 'add' ? '新建标准规则' : '编辑标准规则'" @cancel="closeModel" ok-text="确认" cancel-text="取消" @ok="sureEdit">
+    <a-modal
+      destroyOnClose
+      width="800px"
+      centered
+      v-model="visibleEdit"
+      :title="type === 'add' ? '新建标准规则' : '编辑标准规则'"
+      @cancel="closeModel"
+      ok-text="确认"
+      cancel-text="取消"
+      @ok="sureEdit"
+    >
       <a-form :form="form">
         <div v-for="(item, index) in keysList" :key="item">
           <a-row :gutter="24">
@@ -63,7 +83,9 @@
                     }
                   ]"
                 >
-                  <a-select-option v-for="(val, key) in operator_obj" :key="key" :value="val.value">{{ val.name }}</a-select-option>
+                  <a-select-option v-for="(val, key) in operator_obj" :key="key" :value="val.value">
+                    {{ val.name }}
+                  </a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -79,7 +101,9 @@
                     }
                   ]"
                 >
-                  <a-select-option v-for="(val, key) in standard_property" :key="key" :value="val.value">{{ val.name }}</a-select-option>
+                  <a-select-option v-for="(val, key) in standard_property" :key="key" :value="val.value">
+                    {{ val.name }}
+                  </a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -88,12 +112,24 @@
                 <a-row :gutter="14">
                   <a-col :span="6">
                     <template>
-                      <a-button :disabled="keysList.length <= 1" shape="circle" @click="removeRow(item)" icon="minus" size="small" />
+                      <a-button
+                        :disabled="keysList.length <= 1"
+                        shape="circle"
+                        @click="removeRow(item)"
+                        icon="minus"
+                        size="small"
+                      />
                     </template>
                   </a-col>
                   <a-col :span="6">
                     <template v-if="index + 1 === keysList.length">
-                      <a-button :disabled="keysList.length === 3" shape="circle" @click="addRow" icon="plus" size="small" />
+                      <a-button
+                        :disabled="keysList.length === 3"
+                        shape="circle"
+                        @click="addRow"
+                        icon="plus"
+                        size="small"
+                      />
                     </template>
                   </a-col>
                 </a-row>
@@ -124,7 +160,15 @@
   </div>
 </template>
 <script>
-import { rule_member_list, rule_member_add, rule_member_move, rule_member_reset, rule_member_del, rule_member_edit, rule_member_check } from '@/apis/rules.js'
+import {
+  rule_model_components_list,
+  rule_components_add,
+  rule_components_move,
+  rule_components_reset,
+  rule_model_components_del,
+  rule_components_edit,
+  rule_components_check
+} from '@/apis/rules.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 let lodash = require('lodash')
 export default {
@@ -217,9 +261,9 @@ export default {
           }
           let res = null
           if (this.type === 'add') {
-            res = await rule_member_add(params)
+            res = await rule_components_add(params)
           } else {
-            res = await rule_member_edit({ ...params, rule_id: this.rule_id })
+            res = await rule_components_edit({ ...params, rule_id: this.rule_id })
           }
           this.arr = []
           this.joint = 1
@@ -259,7 +303,7 @@ export default {
     // 如不存在标准规则将无法进行自动匹配操作，需先添加标准规则。
     // 此处测试   true存在规则，false不存在
     async check() {
-      const result = await rule_member_check()
+      const result = await rule_components_check()
       if (result.code !== ResponseStatus.success) return
       const {
         data: { is_exist }
@@ -271,13 +315,13 @@ export default {
         rule_id: item.rule_id,
         type: type
       }
-      const result = await rule_member_move(params)
+      const result = await rule_components_move(params)
       if (result.code !== ResponseStatus.success) return
       this.$message.success(type === 1 ? '上移成功' : '下移成功')
       this.getList()
     },
     async resetRule() {
-      const result = await rule_member_reset()
+      const result = await rule_components_reset()
       if (result.code !== ResponseStatus.success) return
       this.$message.success('恢复默认规则成功')
       this.visible = false
@@ -295,7 +339,7 @@ export default {
           const params = {
             rule_id: item.rule_id
           }
-          rule_member_del(params).then(res => {
+          rule_model_components_del(params).then(res => {
             if (res.code === ResponseStatus.success) {
               this.$message.success('删除成功')
               this.getList()
@@ -308,7 +352,7 @@ export default {
 
     async getList() {
       let params = {}
-      const res = await rule_member_list(params)
+      const res = await rule_model_components_list(params)
       if (res.code !== ResponseStatus.success) return
       const {
         data: { list = [] }

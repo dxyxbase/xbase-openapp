@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-05 15:44:38
- * @LastEditTime: 2023-08-25 13:07:10
+ * @LastEditTime: 2023-09-19 15:38:17
  * @FilePath: /openapi-demoapp/app/router.js
  * @Description:
  */
@@ -13,9 +13,17 @@ module.exports = app => {
   // login
   router.post('/api/v1/login', controller.openApi.getToken)
   // 获取viewer token
-  router.post('/api/open/v1/viewer/token', controller.openApi.model_view_token)
+  router.post('/api/open/v1/viewer/token', controller.openApi.view_token)
   //模型管理列表
   router.get('/api/open/v1/model/models', controller.openApi.model_list)
+  //语义模型列表
+  router.get('/api/open/v1/semantic-model/list', controller.openApi.semantic_model_list)
+  router.post('/api/open/v1/semantic-model/create', controller.openApi.semantic_model_add)
+  router.post('/api/open/v1/semantic-model/translation', controller.openApi.semantic_model_transfrom)
+  router.post('/api/open/v1/semantic-model/translation/cancel', controller.openApi.semantic_model_transfromCancel)
+  router.get('/api/open/v1/semantic-model/info', controller.openApi.semantic_model_info)
+  router.get('/api/open/v1/semantic-model/translation/info', controller.openApi.semantic_model_infoTrans)
+  router.post('/api/open/v1/semantic-model/delete', controller.openApi.semantic_model_del)
   //模型上传
   router.post('/api/open/v1/model/upload', controller.openApi.model_upload)
   // 模型删除
@@ -113,7 +121,14 @@ module.exports = app => {
   router.get('/api/open/v1/graph-service/cim', controller.openApi.getElementSemanticProperty)
   router.post('/api/open/v1/graph-service/cim/delete', controller.openApi.deleteSemantic)
   router.get('/api/open/v1/graph-service/cim/nodes', controller.openApi.getCimNodeSemantic)
-
+  router.get('/api/open/v1/component/components', controller.openApi.model_components_list)
+  router.get('/api/open/v1/component/component', controller.openApi.model_components_detail)
+  router.get('/api/open/v1/component/transform/info', controller.openApi.model_components_info)
+  router.post('/api/open/v1/component/upload', controller.openApi.model_components_upload)
+  router.post('/api/open/v1/component/component', controller.openApi.model_components_save)
+  router.post('/api/open/v1/component/translation', controller.openApi.model_components_transfer_start)
+  router.post('/api/open/v1/component/cancel/translation', controller.openApi.model_components_transfer_cancel)
+  router.post('/api/open/v1/component/delete', controller.openApi.model_components_del)
   // 路由拆分
   // 数据标准化服务
   require('./routers/data')(app)
@@ -121,4 +136,8 @@ module.exports = app => {
   require('./routers/clash')(app)
   // 数据高级管理服务
   require('./routers/search')(app)
+  // 模型检查服务
+  // require('./routers/check')(app)
+  // 模型对比服务
+  require('./routers/comparison')(app)
 }
