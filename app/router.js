@@ -18,6 +18,8 @@ module.exports = app => {
   router.get('/api/open/v1/model/models', controller.openApi.model_list)
   //语义模型列表
   router.get('/api/open/v1/semantic-model/list', controller.openApi.semantic_model_list)
+  //转换语义模型列表
+  router.get('/api/open/v1/semantic-model/translation/list', controller.openApi.trans_semantic_model_list)
   router.post('/api/open/v1/semantic-model/create', controller.openApi.semantic_model_add)
   router.post('/api/open/v1/semantic-model/translation', controller.openApi.semantic_model_transfrom)
   router.post('/api/open/v1/semantic-model/translation/cancel', controller.openApi.semantic_model_transfromCancel)

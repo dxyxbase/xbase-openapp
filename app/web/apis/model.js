@@ -135,6 +135,14 @@ export const semantic_model_list = params => {
   })
 }
 
+export const trans_semantic_model_list = params => {
+  return request({
+    url: '/api/open/v1/semantic-model/translation/list',
+    method: 'GET',
+    params
+  })
+}
+
 export const semantic_model_add = data => {
   return request({
     url: '/api/open/v1/semantic-model/create',

@@ -204,6 +204,16 @@ module.exports = class UserService extends egg.Service {
     return data.data
   }
 
+  async trans_semantic_model_list(query, header) {
+    const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/translation/list`, {
+      params: query,
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+
   async semantic_model_add(body, header) {
     const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/create`, body, {
       headers: {

@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { semantic_model_list } from '@/apis/model'
+import { trans_semantic_model_list } from '@/apis/model'
 import { component_category, component_property } from '@/apis/search'
 
 import Bus from '../bus.js'
@@ -79,7 +79,7 @@ export default {
       searchForm: {
         page_num: 1,
         page_size: 100,
-        filter_status: 4
+        has_asm: true
       },
       treeData: [],
       modelList: [],
@@ -174,9 +174,9 @@ export default {
       this.searchValue = e.target.value.trim()
     },
     getModelList() {
-      semantic_model_list(this.searchForm).then(res => {
+      trans_semantic_model_list(this.searchForm).then(res => {
         if (res.code !== ResponseStatus.success) return
-        this.treeData = res.data.semantic_model_list
+        this.treeData = res.data.list
       })
     },
   },

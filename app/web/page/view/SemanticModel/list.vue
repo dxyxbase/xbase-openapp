@@ -230,12 +230,12 @@ export default {
       this.visibleAdd = false
       this.$message.success('添加成功')
     },
-    // 获取转换成功的模型列表做语义模型源文件
+    // 获取模型列表做语义模型源文件
     async getModelList() {
       const result = await model_list({ page_num: 1, page_size: 999 })
       if (result.code !== ResponseStatus.success) return
       this.modelTree = result.data.list.filter(item => {
-        return item.file_type !== 'asm'
+        return item.file_type === 'rvt' || item.file_type === 'ifc'
       })
     },
     handlePreviewModel() {
@@ -256,7 +256,7 @@ export default {
         if (res.code !== ResponseStatus.success) return
         this.lists = res.data.semantic_model_list
         this.total = res.data.total
-        if (this.searchForm.page_num !== 1 && res.data.semantic_model_list.length === 0) {
+        if (this.searchForm.page_num !== 1 && this.lists.length === 0) {
           this.searchForm.page_num = 1
           this.getRecordList()
         }

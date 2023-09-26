@@ -18,7 +18,15 @@
           <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
           <p>暂无内容</p>
         </div>
-        <a-table v-else :scroll="{ y: height }" :columns="columns" :data-source="lists" :pagination="false" :rowKey="record => record.id" class="table-ui">
+        <a-table
+          v-else
+          :scroll="{ y: height }"
+          :columns="columns"
+          :data-source="lists"
+          :pagination="false"
+          :rowKey="record => record.id"
+          class="table-ui"
+        >
           <div slot="name" slot-scope="text, record" class="file-name">
             <a-button key="name" class="tdName" type="link" @click="goDetail(record)">
               <span>{{ text }}</span>
@@ -31,7 +39,13 @@
             <a-button key="edit" @click="bind(record, 'type')" type="link" class="actionBtn">
               <span>绑定</span>
             </a-button>
-            <a-button @click="unbind(record, 'type')" :disabled="record.completed_count === 0" key="del" type="link" class="actionBtn">
+            <a-button
+              @click="unbind(record, 'type')"
+              :disabled="record.completed_count === 0"
+              key="del"
+              type="link"
+              class="actionBtn"
+            >
               <span>解绑</span>
             </a-button>
           </div>
@@ -39,8 +53,20 @@
       </div>
     </div>
     <!-- 绑定model -->
-    <bind-model v-if="isHandle" :isHandle="isHandle" :handleType="handleType" :handleData="handleData" @close="close"></bind-model>
-    <unbind-model v-if="isunHandle" :isHandle="isunHandle" :handleType="handleType" :handleData="handleData" @close="close"></unbind-model>
+    <bind-model
+      v-if="isHandle"
+      :isHandle="isHandle"
+      :handleType="handleType"
+      :handleData="handleData"
+      @close="close"
+    ></bind-model>
+    <unbind-model
+      v-if="isunHandle"
+      :isHandle="isunHandle"
+      :handleType="handleType"
+      :handleData="handleData"
+      @close="close"
+    ></unbind-model>
   </div>
 </template>
 <script>
@@ -76,14 +102,16 @@ export default {
 
   methods: {
     unbind(item, type) {
+      // model_path: item.render_path,
+      //   model_id: item.semantic_model_id,
       this.isunHandle = true
       this.handleType = type
-      this.handleData = [item]
+      this.handleData = [{ ...item, model_path: this.query.model_path, model_id: this.query.model_id }]
     },
     bind(item, type) {
       this.isHandle = true
       this.handleType = type
-      this.handleData = [item]
+      this.handleData = [{ ...item, model_path: this.query.model_path, model_id: this.query.model_id }]
     },
     close() {
       this.isHandle = false

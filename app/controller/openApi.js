@@ -358,6 +358,14 @@ module.exports = class openApiController extends Controller {
       Authorization: ctx.cookies.get('token')
     })
   }
+  
+  // 转换语义模型列表
+  async trans_semantic_model_list(ctx) {
+    this.ctx.body = await ctx.service.model.trans_semantic_model_list(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+
   async semantic_model_add(ctx) {
     this.ctx.body = await ctx.service.model.semantic_model_add(ctx.request.body, {
       Authorization: ctx.cookies.get('token')

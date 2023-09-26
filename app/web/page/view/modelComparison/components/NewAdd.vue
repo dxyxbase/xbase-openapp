@@ -55,7 +55,6 @@
               dropdownClassName="treeSelectOpt"
               :dropdown-style="{ maxHeight: '360px', overflow: 'auto' }"
               placeholder="请选择"
-
               tree-default-expand-all
               :treeData="treeData"
               :replaceFields="{label: 'name', value: 'semantic_model_id'}"
@@ -81,7 +80,7 @@
 </template>
 
 <script type="text/babel">
-import { semantic_model_list } from '@/apis/model'
+import { trans_semantic_model_list } from '@/apis/model'
 import { comparison_create } from '@/apis/comparison'
 import { message } from 'ant-design-vue';
 import { ResponseStatus } from '@/framework/network/util.js'
@@ -102,7 +101,7 @@ export default {
       searchForm: {
         page_num: 1,
         page_size: 10,
-        filter_status: 4,
+        has_asm: true,
       },
       modelList:[],
       formState: {},
@@ -156,9 +155,9 @@ export default {
       this.visible = false
     },
     getModelList() {
-      semantic_model_list(this.searchForm).then(res => {
+      trans_semantic_model_list(this.searchForm).then(res => {
         if (res.code !== ResponseStatus.success) return
-        this.treeData = res.data.semantic_model_list
+        this.treeData = res.data.list
       })
     },
   },

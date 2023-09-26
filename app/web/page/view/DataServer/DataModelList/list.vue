@@ -87,7 +87,7 @@
 </template>
 <script>
 import { standard_model_processing_info, standard_publish_list, standard_model_autoMatch } from '@/apis/standard.js'
-import { semantic_model_list } from '@/apis/model.js'
+import { trans_semantic_model_list } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 export default {
   data() {
@@ -177,14 +177,14 @@ export default {
       let params = {
         page_size: this.page_size,
         page_num: this.page_num,
-        filter_status: 4
+        has_asm: true
       }
-      const res = await semantic_model_list(params)
+      const res = await trans_semantic_model_list(params)
       if (res.code !== ResponseStatus.success) return
 
-      this.lists = res.data.semantic_model_list || []
+      this.lists = res.data.list || []
       this.total = res.data.total
-      if (this.page_num !== 1 && semantic_model_list.length === 0) {
+      if (this.page_num !== 1 && this.lists.length === 0) {
         this.page_num = 1
         this.getList()
       }

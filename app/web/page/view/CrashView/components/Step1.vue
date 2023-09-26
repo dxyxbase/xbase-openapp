@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { semantic_model_list } from '@/apis/model'
+import { trans_semantic_model_list } from '@/apis/model'
 import Bus from '../bus.js'
 import { ResponseStatus } from '@/framework/network/util.js'
 
@@ -55,7 +55,7 @@ export default {
       searchForm: {
         page_num: 1,
         page_size: 100,
-        filter_status: 4,
+        has_asm: true
       },
       treeData: [],
       modelList: []
@@ -77,9 +77,9 @@ export default {
       Bus.$emit('handleList', this.modelList)
     },
     getModelList() {
-      semantic_model_list(this.searchForm).then(res => {
+      trans_semantic_model_list(this.searchForm).then(res => {
         if (res.code !== ResponseStatus.success) return
-        this.treeData = res.data.semantic_model_list
+        this.treeData = res.data.list
       })
     },
   },
