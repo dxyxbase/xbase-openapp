@@ -386,6 +386,25 @@ module.exports = class openApiController extends Controller {
       Authorization: ctx.cookies.get('token')
     })
   }
+
+  async semantic_model_assembly(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_assembly(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+
+  async semantic_model_assembly_update(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_assembly_update(ctx.request.body, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+
+  async semantic_model_assembly_children(ctx) {
+    this.ctx.body = await ctx.service.model.semantic_model_assembly_children(ctx.request.query, {
+      Authorization: ctx.cookies.get('token')
+    })
+  }
+
   async semantic_model_infoTrans(ctx) {
     this.ctx.body = await ctx.service.model.semantic_model_infoTrans(ctx.request.query, {
       Authorization: ctx.cookies.get('token')

@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 15:28:41
- * @LastEditTime: 2023-09-19 15:38:06
+ * @LastEditTime: 2023-10-11 18:16:21
  * @FilePath: /openapi-demoapp/app/service/model.js
  * @Description:j
  */
@@ -248,6 +248,32 @@ module.exports = class UserService extends egg.Service {
     })
     return data.data
   }
+  async semantic_model_assembly(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/assembly`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+  async semantic_model_assembly_update(body, header) {
+    const data = await axios.post(`${baseConfig.url}/api/open/v1/semantic-model/assembly/update`, body, {
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+  async semantic_model_assembly_children(query, header) {
+    const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/assembly/children`, {
+      params: query,
+      headers: {
+        Authorization: header.Authorization
+      }
+    })
+    return data.data
+  }
+
   async semantic_model_infoTrans(query, header) {
     const data = await axios.get(`${baseConfig.url}/api/open/v1/semantic-model/translation/info`, {
       params: query,

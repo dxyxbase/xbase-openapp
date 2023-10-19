@@ -24,6 +24,9 @@ module.exports = app => {
   router.post('/api/open/v1/semantic-model/translation', controller.openApi.semantic_model_transfrom)
   router.post('/api/open/v1/semantic-model/translation/cancel', controller.openApi.semantic_model_transfromCancel)
   router.get('/api/open/v1/semantic-model/info', controller.openApi.semantic_model_info)
+  router.post('/api/open/v1/semantic-model/assembly', controller.openApi.semantic_model_assembly)
+  router.post('/api/open/v1/semantic-model/assembly/update', controller.openApi.semantic_model_assembly_update)
+  router.get('/api/open/v1/semantic-model/assembly/children', controller.openApi.semantic_model_assembly_children)
   router.get('/api/open/v1/semantic-model/translation/info', controller.openApi.semantic_model_infoTrans)
   router.post('/api/open/v1/semantic-model/delete', controller.openApi.semantic_model_del)
   //模型上传

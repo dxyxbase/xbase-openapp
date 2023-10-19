@@ -1,6 +1,6 @@
 /**
  * @Date: 2023-06-06 18:44:22
- * @LastEditTime: 2023-09-19 15:36:59
+ * @LastEditTime: 2023-10-11 18:12:40
  * @FilePath: /openapi-demoapp/app/web/apis/model.js
  * @Description:前端模型接口
  */
@@ -183,5 +183,26 @@ export const semantic_model_del = data => {
     url: '/api/open/v1/semantic-model/delete',
     method: 'POST',
     data: data
+  })
+}
+export const semantic_model_assembly = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/assembly',
+    method: 'POST',
+    data: data
+  })
+}
+export const semantic_model_assembly_update = data => {
+  return request({
+    url: '/api/open/v1/semantic-model/assembly/update',
+    method: 'POST',
+    data: data
+  })
+}
+export const semantic_model_assembly_children = params => {
+  return request({
+    url: '/api/open/v1/semantic-model/assembly/children',
+    method: 'GET',
+    params
   })
 }

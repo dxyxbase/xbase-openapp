@@ -2,13 +2,13 @@
   <div class="model-box">
     <div class="head_opr">
       <a-button type="primary" class="btn1" @click="handleAdd">新建碰撞检查</a-button>
-        <NewAdd :updateList="getClashList" :handleAdd="handleAdd" v-if="visibleAdd"></NewAdd>
+      <NewAdd :updateList="getClashList" :handleAdd="handleAdd" v-if="visibleAdd"></NewAdd>
     </div>
     <div class="sceneTableOutContent">
       <div>
         <div v-if="lists.length === 0" class="noData" style="text-align: center">
-            <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
-            <p>暂无内容</p>
+          <img :src="require('@/asset/images/nodata.png')" alt="暂无数据" />
+          <p>暂无内容</p>
         </div>
         <a-table
           v-else
@@ -18,13 +18,12 @@
           :rowKey="record => record.clash_id"
           class="table-ui"
         >
-          
           <div slot="name" slot-scope="text" class="file-name">
             <span key="preview" type="link" class="actionBtn">
               {{ text }}
             </span>
           </div>
-          
+
           <div slot-scope="text" slot="status">
             <div>{{ statuObj[text.toString()] }}</div>
           </div>
@@ -39,11 +38,9 @@
 
           <template #update_time>
             <div slot-scope="record">
-                <div>{{ record.create_time | formatDate }}</div>
+              <div>{{ record.create_time | formatDate }}</div>
             </div>
           </template>
-
-          
 
           <div slot="Action" slot-scope="text, record" class="action-box">
             <a-button v-show="record.status === 2" type="link" class="actionBtn" @click="handleCheck(record)">
@@ -55,32 +52,55 @@
             <a-button type="link" :disabled="record.status === 2 || record.status === -1" @click="handleCancel(record)">
               <span>取消</span>
             </a-button>
-            <a-button type="link" :disabled="record.status === 0 || record.status === 1" class="actionBtn" @click="handleDelete(record)">
+            <a-button
+              type="link"
+              :disabled="record.status === 0 || record.status === 1"
+              class="actionBtn"
+              @click="handleDelete(record)"
+            >
               <span>删除</span>
             </a-button>
           </div>
-
         </a-table>
       </div>
       <a-row type="flex" justify="end">
-        <a-pagination v-if="lists.length" style="margin: 12px 24px" class="page-ui" size="small" show-size-changer :current="page_num" :total="total" :pageSize="page_size" @change="handlePaging" @showSizeChange="changePageSize" />
+        <a-pagination
+          v-if="lists.length"
+          style="margin: 12px 24px"
+          class="page-ui"
+          size="small"
+          show-size-changer
+          :current="page_num"
+          :total="total"
+          :pageSize="page_size"
+          @change="handlePaging"
+          @showSizeChange="changePageSize"
+        />
       </a-row>
     </div>
 
     <Check v-if="checkVisible" :checkInfo="checkInfo" :closeCheck="closeCheck" />
 
-
-    <a-modal title="详情" :visible="visible" :destroyOnClose="true" :footer="null" centered class="pop-ui" width="40rem" :maskClosable="false" @cancel="visible = false">
+    <a-modal
+      title="详情"
+      :visible="visible"
+      :destroyOnClose="true"
+      :footer="null"
+      centered
+      class="pop-ui"
+      width="40rem"
+      :maskClosable="false"
+      @cancel="visible = false"
+    >
       <div class="details" v-if="!!contents">
         <textarea id="textarea" readonly="readonly" v-model="contents" rows="20" width="30rem"></textarea>
-    </div>
+      </div>
     </a-modal>
   </div>
-  
 </template>
 <script type="text/babel">
-import { clash_lists, clash_del, clash_cancel, clash_content} from '@/apis/clash.js'
-import { Modal } from 'ant-design-vue';
+import { clash_lists, clash_del, clash_cancel, clash_content } from '@/apis/clash.js'
+import { Modal } from 'ant-design-vue'
 import { colorMap, textMap, collisionType } from './config'
 import { ResponseStatus } from '@/framework/network/util.js'
 import NewAdd from './components/NewAdd'
@@ -103,10 +123,10 @@ export default {
         page_num: 1,
         page_size: 10
       },
-      // 碰撞检查状态； 0等待中，1检查中，2已完成，-1已取消
+      // 碰撞检查状态； 0排队中，1检查中，2已完成，-1已取消
       statuObj: {
         '-1': '已取消',
-        0: '等待中',
+        0: '排队中',
         1: '检查中',
         2: '已完成'
       },
@@ -114,33 +134,33 @@ export default {
       page_num: 1,
       page_size: 10,
       lists: [],
-      contents: null,
+      contents: null
     }
   },
   created() {
-    Bus.$on('updateList',this.getClashList)
+    Bus.$on('updateList', this.getClashList)
   },
   methods: {
     // 点击新建
-    handleAdd(visible){
+    handleAdd(visible) {
       this.visibleAdd = visible
     },
-    handleCheck(row){
+    handleCheck(row) {
       this.checkInfo = row
       this.checkVisible = true
     },
-   
+
     closeCheck() {
       this.checkVisible = false
     },
-    handleCancel(row){
+    handleCancel(row) {
       const params = {
         clash_id: row.clash_id
       }
       clash_cancel(params).then(res => {
         const { code } = res
-        if(code !== ResponseStatus.success) return
-        setTimeout(this.getClashList(),3000)
+        if (code !== ResponseStatus.success) return
+        setTimeout(this.getClashList(), 3000)
       })
     },
     // 删除碰撞检查
@@ -154,19 +174,18 @@ export default {
         class: 'deleteModal',
         okText: '确定',
         cancelText: '取消',
-        onOk: () => { 
+        onOk: () => {
           const params = {
             clash_id_list: [row.clash_id]
           }
           clash_del(params).then(res => {
             const { code } = res
-            if(code !== ResponseStatus.success) return
+            if (code !== ResponseStatus.success) return
             this.getClashList()
           })
         },
-        onCancel () { },
-      });
-      
+        onCancel() {}
+      })
     },
     upload() {
       this.getClashList()
@@ -201,15 +220,19 @@ export default {
     handleDetail(row) {
       this.contents = JSON.stringify(row, null, 4)
       this.visible = true
-      clash_content({ clash_id: row.clash_id, type: row.type, page_num: this.page_num, page_size:this.page_size})
-      .then(res => {
+      clash_content({
+        clash_id: row.clash_id,
+        type: row.type,
+        page_num: this.page_num,
+        page_size: this.page_size
+      }).then(res => {
         if (res.code !== ResponseStatus.success) return
         this.detailTemp = res.data
         this.visible = true
       })
     }
   },
-   
+
   mounted() {
     this.getClashList()
     this.$bus.off('upData')
@@ -343,5 +366,4 @@ export default {
     }
   }
 }
-
 </style>

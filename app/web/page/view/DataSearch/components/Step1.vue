@@ -61,8 +61,7 @@
 </template>
 
 <script>
-import { trans_semantic_model_list } from '@/apis/model'
-import { component_category, component_property } from '@/apis/search'
+import { trans_semantic_model_list, semantic_model_assembly_children } from '@/apis/model'
 
 import Bus from '../bus.js'
 import { ResponseStatus } from '@/framework/network/util.js'
@@ -113,9 +112,9 @@ export default {
     },
     goNext() {
       this.handleNext(),
+      console.log(this.pathList, 333333333333)
       Bus.$emit('pathList', [this.pathList, this.recordName])
       Bus.$emit('modelList', this.selectedModels)
-
     },
     onNameChange(e) {
         this.recordName = e.target.value
@@ -148,14 +147,30 @@ export default {
       this.searchValue = value;
       this.autoExpandParent = true;
     },
+    getAsmChildren(id) {
+      semantic_model_assembly_children({asm_model_id: id}).then(res => {
+        if (res.code !== ResponseStatus.success) return
+        res.data.sub_model_list.map(item => {
+          this.modelList.push(item.semantic_model_id)
+          this.pathList.push(item.render_path)
+        })
+      })
+    },
 
     handleCheck(checkedKeys, e) {
       this.selectedModels = []
       this.pathList = []
+      this.modelList = []
       const { checkedNodes, checkedNodesPositions } = e
       // 获取模型路径
-      this.modelList = checkedNodes.map(item => item.data.props.model_id);
-      this.pathList = checkedNodes.map(item => item.data.props.render_path);
+      checkedNodes.map(item => {
+        if (item.data.props.name.split('.')[1] === 'asm') {
+          this.getAsmChildren(item.data.props.semantic_model_id)
+        }else {
+          this.modelList.push(item.data.props.semantic_model_id)
+          this.pathList.push(item.data.props.render_path)
+        }
+      })
       
       // 获取搜索范围（最外层name）
       // item.pos.split('-')[1]代表当前节点的层级
@@ -165,10 +180,9 @@ export default {
       const arrName = [...arr].map(item => {
         return this.treeData && this.treeData[item - 0].name
       })
+
       this.searchRange = arrName
       this.checkedKeys = checkedKeys
-
-      
     },
     handleChange(e) {
       this.searchValue = e.target.value.trim()

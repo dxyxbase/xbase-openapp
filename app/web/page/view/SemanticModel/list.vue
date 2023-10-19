@@ -2,6 +2,14 @@
   <div class="asset-box">
     <div class="head_opr">
       <a-button type="primary" @click="visibleAdd = true">添加</a-button>
+      <a-button type="primary" @click="TransVisible = true">模型装配</a-button>
+      <Transfer
+        @cancel="cancel"
+        :selectName="selectName"
+        :handleAdd="handleAdd"
+        :id="id"
+        v-if="TransVisible"
+      ></Transfer>
     </div>
     <div class="sceneTableOutContent">
       <div>
@@ -48,9 +56,9 @@
             >
               <span>终止</span>
             </a-button>
-            <!-- <a-button v-if="record.status === 0" type="link" class="actionBtn" @click="viewPre(record)">
-              <span>预览</span>
-            </a-button> -->
+            <a-button v-if="record.file_type === 'asm'" type="link" class="actionBtn" @click="edit(record)">
+              <span>装配编辑</span>
+            </a-button>
             <a-button type="link" class="actionBtn" @click="getInfo('model', '语义模型详情', record)">
               <span>语义模型详情</span>
             </a-button>
@@ -82,7 +90,6 @@
           @change="handlePaging"
           @showSizeChange="changePageSize"
         />
-      
       </a-row>
     </div>
     <a-modal
@@ -130,8 +137,9 @@ import {
   semantic_model_infoTrans
 } from '@/apis/model.js'
 import { ResponseStatus } from '@/framework/network/util.js'
+import Transfer from '../SemanticModel/views/transfer.vue'
 export default {
-  components: {},
+  components: { Transfer },
   data() {
     const rowSelection = {
       getCheckboxProps: record => ({
@@ -154,14 +162,15 @@ export default {
       details: {},
       visibleRename: false,
       visibleAdd: false,
-      // -7已终止，-3待转换，-2转换失败，0转换成功，1转换中，4等待中
+      TransVisible: false,
+      // -7已终止，-3待转换，-2转换失败，0转换成功，1转换中，4排队中
       statuObj: {
         '-7': '已终止',
         '-3': '待转换',
         '-2': '转换失败',
         0: '转换成功',
         1: '转换中',
-        4: '等待中'
+        4: '排队中'
       },
       is_free: true,
       rowSelection,
@@ -179,7 +188,10 @@ export default {
       modelTree: [],
       selectModel: [],
       title: '',
-      model_components_info: ''
+      model_components_info: '',
+      handleType: '',
+      id: '',
+      selectName: ''
     }
   },
   filters: {
@@ -205,6 +217,22 @@ export default {
     this.getModelList()
   },
   methods: {
+    cancel() {
+      this.TransVisible = false
+      this.getSenceList()
+    },
+    edit(item) {
+      this.handleType = 'edit'
+      this.selectName = item.name.split('.asm')[0]
+      this.id = item.semantic_model_id
+      this.TransVisible = true
+    },
+    handleAdd(visible) {
+      this.handleType = 'add'
+      this.id = ''
+      this.selectName = ''
+      this.TransVisible = visible
+    },
     // 转换
     async cancelTransform(item) {
       const result = await semantic_model_transfromCancel({ semantic_model_id: item.semantic_model_id })
@@ -258,7 +286,7 @@ export default {
         this.total = res.data.total
         if (this.searchForm.page_num !== 1 && this.lists.length === 0) {
           this.searchForm.page_num = 1
-          this.getRecordList()
+          this.getSenceList()
         }
       })
     },
@@ -343,8 +371,7 @@ export default {
           that.selectedRowKeys = []
         }
       })
-    },
-
+    }
   },
 
   computed: {
