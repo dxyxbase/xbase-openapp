@@ -1,4 +1,9 @@
-# X-Base 微服务示例
+# ！！！注意！！！
+本仓库已经不再更新，最新版本已经迁移到Gitee, 请访问下面的地址获取最新版本：
+
+[ dxyxbase/xbase-openapp](https://gitee.com/dxycn/xbase-openapp)
+
+## X-Base 微服务示例
 
 ## 简介
 
